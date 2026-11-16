@@ -1049,9 +1049,7 @@ try{const mq=matchMedia('(prefers-color-scheme: dark)');const f=()=>{if(!THEME){
 
 /* ================= conversion: second currency next to złoty (PrivatBank rate) ================= */
 const FXKEY='mywallet.fx',FX_TTL=6*3600*1000,MANUAL='вручную';
-/* Built-in snapshot (NBP table A of 16 Nov 2026). Used until a live rate arrives and wherever the network is closed (e.g. inside the Claude preview). */
-const FX_SEED={ts:0,date:'2026-11-16',src:'Нацбанк Польши (встроенный)',r:{EUR:1/4.4048,USD:1/4.0007,UAH:1/0.088}};
-let FX=readKey(FXKEY);if(!(FX&&FX.r&&typeof FX.r==='object'))FX=FX_SEED;
+let FX=readKey(FXKEY);if(!(FX&&FX.r&&typeof FX.r==='object'))FX=null;
 const FXST={busy:false,err:'',log:[]};
 const fxSave=()=>{try{localStorage.setItem(FXKEY,JSON.stringify(FX));}catch(e){}};
 const rateOf=c=>{const r=FX&&c?+FX.r[c]:0;return r>0&&isFinite(r)?r:0;};
@@ -1063,8 +1061,6 @@ const okR=n=>n>0&&isFinite(n);
 function viaUAH(pl,eu,us,date){if(!(okR(pl)&&okR(eu)&&okR(us)))throw new Error('bad rates');return {date,r:{UAH:pl,EUR:pl/eu,USD:pl/us}};}
 /* tried all at once; the first one (in this order) that answers wins */
 const FX_SOURCES=[
-  {name:'Нацбанк Польши',get:async()=>{const t=(await getJSON('https://api.nbp.pl/api/exchangerates/tables/A/?format=json'))[0],m=c=>{const x=t.rates.find(y=>y.code===c);return x?+x.mid:0;};const e=m('EUR'),u=m('USD'),h=m('UAH');if(!(okR(e)&&okR(u)&&okR(h)))throw new Error('bad rates');return {date:t.effectiveDate,r:{EUR:1/e,USD:1/u,UAH:1/h}};}},
-  {name:'ExchangeRate-API',get:async()=>{const q=(await getJSON('https://open.er-api.com/v6/latest/PLN')).rates||{};if(!(okR(+q.EUR)&&okR(+q.USD)&&okR(+q.UAH)))throw new Error('bad rates');return {date:todayISO(),r:{EUR:+q.EUR,USD:+q.USD,UAH:+q.UAH}};}},
   {name:'ПриватБанк',get:async()=>{
     for(let i=0;i<4;i++){
       const d=addDays(todayISO(),-i),p=d.split('-');
@@ -1075,7 +1071,9 @@ const FX_SOURCES=[
       if(pl&&us&&eu)return viaUAH(pl,eu,us,d);
     }
     throw new Error('no data');}},
+  {name:'Нацбанк Польши',get:async()=>{const t=(await getJSON('https://api.nbp.pl/api/exchangerates/tables/A/?format=json'))[0],m=c=>{const x=t.rates.find(y=>y.code===c);return x?+x.mid:0;};const e=m('EUR'),u=m('USD'),h=m('UAH');if(!(okR(e)&&okR(u)&&okR(h)))throw new Error('bad rates');return {date:t.effectiveDate,r:{EUR:1/e,USD:1/u,UAH:1/h}};}},
   {name:'НБУ',get:async()=>{const L=await getJSON('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json');const get=c=>{const x=Array.isArray(L)&&L.find(y=>y.cc===c);return x?+x.rate:0;};return viaUAH(get('PLN'),get('EUR'),get('USD'),todayISO());}},
+  {name:'ExchangeRate-API',get:async()=>{const q=(await getJSON('https://open.er-api.com/v6/latest/PLN')).rates||{};if(!(okR(+q.EUR)&&okR(+q.USD)&&okR(+q.UAH)))throw new Error('bad rates');return {date:todayISO(),r:{EUR:+q.EUR,USD:+q.USD,UAH:+q.UAH}};}},
   {name:'currency-api',get:async()=>{let j;try{j=await getJSON('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/pln.json');}catch(e){j=await getJSON('https://latest.currency-api.pages.dev/v1/currencies/pln.json');}const q=j.pln||{};if(!(okR(+q.eur)&&okR(+q.usd)&&okR(+q.uah)))throw new Error('bad rates');return {date:j.date||todayISO(),r:{EUR:+q.eur,USD:+q.usd,UAH:+q.uah}};}}
 ];
 async function fetchRates(){
@@ -1085,7 +1083,7 @@ async function fetchRates(){
   const i=res.findIndex(x=>x.status==='fulfilled');
   FXST.log=res.map((x,k)=>({name:FX_SOURCES[k].name,ok:x.status==='fulfilled',msg:x.status==='fulfilled'?'ответил':(x.reason&&x.reason.name==='AbortError'?'нет ответа за 8 с':(x.reason&&/^http /.test(x.reason.message)?'ошибка '+x.reason.message:'запрос заблокирован (сеть, CORS или ограничения страницы)'))}));
   if(i>=0){const v=res[i].value;FX={ts:Date.now(),date:v.date,src:FX_SOURCES[i].name,r:v.r};fxSave();}
-  else FXST.err='Не удалось обновить курс из интернета. '+(window.claude?'В окне Claude приложению закрыт выход в сеть, на сайте GitHub Pages курс обновится сам. ':'Проверьте интернет. ')+'Показан последний известный курс.';
+  else FXST.err='Не удалось обновить курс из интернета. '+(window.claude?'В окне Claude приложению закрыт выход в сеть, откройте приложение на сайте GitHub Pages. ':'Проверьте интернет. ')+(rateOf(D.conv)?'Показан последний известный курс.':'Можно ввести курс вручную.');
   render();
 }
 function maybeFetchRates(force){if(!D||!D.conv||FXST.busy)return;if(!force&&FX&&(FX.src===MANUAL||Date.now()-FX.ts<FX_TTL))return;fetchRates();}
@@ -1156,7 +1154,7 @@ const ACT={
   'cv-open'(){openSheet('cur',{edit:false,rv:''});maybeFetchRates();},
   'cv-pick'(el){const v=el.dataset.v||'';D.conv=v;save();FXST.err='';render();if(v)maybeFetchRates(!rateOf(v));},
   'cv-refresh'(){fetchRates();},
-  'cv-reset'(){FX=FX_SEED;try{localStorage.removeItem(FXKEY);}catch(e){}FXST.err='';render();fetchRates();},
+  'cv-reset'(){FX=null;try{localStorage.removeItem(FXKEY);}catch(e){}FXST.err='';render();fetchRates();},
   'cv-manual'(el){const s=sheetOf(el);s.data.edit=true;s.data.rv='';paintSheet(s);const i=$('#cvv',s.el);if(i)i.focus();},
   'cv-mcancel'(el){const s=sheetOf(el);s.data.edit=false;paintSheet(s);},
   'cv-msave'(el){
