@@ -1,6 +1,7 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script>try{var t=localStorage.getItem("mywallet.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script>try{var t=localStorage.getItem("mywallet.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><script src="firebase-config.js"></script></head><body>
 <title>Мой кошелёк</title>
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
 <style>
 /* Layout concept: one phone-width column. White canvas, black and violet hero cards, lavender soft panels,
@@ -427,6 +428,7 @@ const ICONS={
  chart:'<path d="M5 20V11M12 20V4M19 20v-6"/>',
  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
+ cloud:'<path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5z"/>',
  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
  back:'<path d="M15 5l-7 7 7 7"/>',
  chev:'<path d="M9 5l7 7-7 7"/>',
@@ -533,7 +535,7 @@ function load(){const a=readKey(KEY);if(a){const n=migrate(a);if(n)return n;}con
 function testStore(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true;}catch(e){return false;}}
 let saveTimer=null;
 function flush(){try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
-function save(){clearTimeout(saveTimer);saveTimer=setTimeout(flush,200);}
+function save(){clearTimeout(saveTimer);saveTimer=setTimeout(flush,200);syMark();}
 window.addEventListener('pagehide',flush);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flush();});
 
@@ -581,7 +583,7 @@ function applyRecurring(){
   for(const r of D.rec){
     for(let g=0;g<800;g++){
       const d=recDate(r,r.n);if(d>today)break;
-      D.tx.push({id:uid(),type:r.type,amount:r.amount,categoryId:r.categoryId,date:d,note:r.note,createdAt:Date.now(),updatedAt:0,recId:r.id});r.n++;made++;
+      D.tx.push({id:r.id+'~'+r.n,type:r.type,amount:r.amount,categoryId:r.categoryId,date:d,note:r.note,createdAt:Date.now(),updatedAt:0,recId:r.id});r.n++;made++;
     }
   }
   return made;
@@ -823,10 +825,11 @@ SH.menu=()=>shHead('Меню')+'<div class="pg sbody"><div class="list">'
   +mrow('layers','Категории','m-cats')
   +mrow('repeat','Постоянные операции','m-recs',D.rec.length?'<span class="mut" style="font-weight:700">'+D.rec.length+'</span>':'')
   +mrow('coin','Валюта и курс','m-cur','<span class="mut" style="font-weight:700">'+esc(curSym()[0]+(D.conv?' + '+CURS[D.conv][0]:''))+'</span>')
+  +mrow('cloud','Облако и синхронизация','m-sync',SY.state==='in'?'<span class="mut" style="font-weight:700">'+(SY.busy?'…':SY.err?'Ошибка':'Вкл')+'</span>':'')
   +mrow('save','Сохранить копию в файл','m-backup')
   +mrow('arrowup','Восстановить из копии','m-restore')
   +mrow('trash','Удалить все данные','m-wipe','<span></span>','danger')
-  +'</div><div class="hint">Данные хранятся только в браузере этого устройства. Сохраняйте копию, чтобы не потерять их и перенести на другое устройство.</div></div>';
+  +'</div><div class="hint">'+(SY.state==='in'?'Данные синхронизируются с вашим аккаунтом Google. Копию в файл всё равно полезно иногда сохранять.':'Данные хранятся в браузере этого устройства. Включите облако или сохраняйте копию, чтобы не потерять их и перенести на другое устройство.')+'</div></div>';
 
 /* ---- currency ---- */
 SH.cur=d=>{
@@ -1088,6 +1091,177 @@ async function fetchRates(){
 }
 function maybeFetchRates(force){if(!D||!D.conv||FXST.busy)return;if(!force&&FX&&Date.now()-FX.ts<FX_TTL)return;fetchRates();}
 const fx4=n=>n.toFixed(4).replace('.',',');
+/* ================= cloud sync: Firebase (Google sign-in + Firestore) =================
+   Local-first: the app always works from localStorage; when signed in, the whole data set is mirrored into one
+   Firestore document users/{uid} = {rev, data:<JSON string>}. Two devices that both changed data are reconciled by a
+   three-way merge against the last synced copy (SYBASE): additions from both sides are kept, an item deleted on one
+   side is dropped, an item edited on both sides takes the newer edit. The SDK is loaded lazily from Google's CDN, so
+   without firebase-config.js (or in the Claude preview, where the network is closed) the app is just local. */
+const SYKEY='mywallet.sync',SYBASE='mywallet.syncbase',FB_VER='10.12.5';
+const FBCFG=window.FIREBASE_CONFIG;
+const fbReady=!!(FBCFG&&typeof FBCFG==='object'&&FBCFG.apiKey&&FBCFG.projectId&&!/^(PASTE|YOUR|XXX)/i.test(String(FBCFG.apiKey)));
+let SM=readKey(SYKEY);if(!SM||typeof SM!=='object')SM={};
+const SY={state:fbReady?'idle':'noconfig',user:null,busy:false,err:'',last:0};
+let FBM=null,FBP=null,FBAUTH=null,FBDB=null,FBUNSUB=null,syT=null,syQ=false;
+const smSave=()=>{try{localStorage.setItem(SYKEY,JSON.stringify(SM));}catch(e){}};
+const sj=o=>JSON.stringify(o,Object.keys(o).sort());
+function syMark(){
+  if(!SM.uid)return;
+  SM.dirty=true;SM.seq=(SM.seq|0)+1;smSave();clearTimeout(syT);
+  if(SY.state==='in')syT=setTimeout(syncNow,1500);
+}
+function syErr(e){
+  const c=String((e&&e.code)||''),m=String((e&&e.message)||e||'');
+  if(c==='auth/unauthorized-domain')return 'Адрес сайта не добавлен в Firebase: Authentication → Settings → Authorized domains.';
+  if(c==='auth/operation-not-allowed')return 'В Firebase не включён вход через Google (Authentication → Sign-in method).';
+  if(c==='auth/network-request-failed'||c==='unavailable'||/offline|network/i.test(m))return 'Нет связи с сервером. Изменения сохранены на устройстве и отправятся позже.';
+  if(c==='permission-denied')return 'Нет доступа к базе: проверьте правила Firestore (файл firestore.rules).';
+  if(c==='not-found'||c==='failed-precondition'||/has not been used|does not exist/i.test(m))return 'В проекте Firebase не создана база Firestore.';
+  if(c==='resource-exhausted'||m==='too-big')return 'Данных слишком много для облака (лимит документа 1 МБ).';
+  return 'Ошибка синхронизации: '+(c||m).slice(0,120);
+}
+function fbLoad(){
+  if(FBP)return FBP;
+  FBP=(async()=>{
+    const M=window.__FBSDK||await Promise.all(['app','auth','firestore'].map(n=>import('https://www.gstatic.com/firebasejs/'+FB_VER+'/firebase-'+n+'.js'))).then(a=>({app:a[0],auth:a[1],fs:a[2]}));
+    const app=M.app.initializeApp(FBCFG);
+    FBAUTH=M.auth.getAuth(app);FBDB=M.fs.getFirestore(app);FBM=M;return M;
+  })();
+  FBP.catch(()=>{FBP=null;});
+  return FBP;
+}
+async function syInit(){
+  if(!fbReady||FBM||SY.state==='loading')return;
+  SY.state='loading';SY.err='';render();
+  try{
+    const M=await fbLoad();
+    M.auth.onAuthStateChanged(FBAUTH,syUser,e=>{SY.err=syErr(e);render();});
+    try{await M.auth.getRedirectResult(FBAUTH);}catch(e){SY.err=syErr(e);}
+    if(SY.state==='loading')SY.state='out';
+  }catch(e){SY.state='unavailable';SY.err='Не удалось загрузить Firebase. Проверьте интернет и повторите.';}
+  render();
+}
+function syUser(u){
+  if(!u){SY.user=null;SY.state='out';if(FBUNSUB){try{FBUNSUB();}catch(e){}FBUNSUB=null;}render();return;}
+  SY.user={uid:u.uid,name:u.displayName||'',email:u.email||''};SY.state='in';SY.err='';
+  if(SM.uid!==u.uid){SM={uid:u.uid,rev:0,dirty:true,seq:1};smSave();try{localStorage.removeItem(SYBASE);}catch(e){}}
+  if(FBUNSUB){try{FBUNSUB();}catch(e){}FBUNSUB=null;}
+  try{FBUNSUB=FBM.fs.onSnapshot(FBM.fs.doc(FBDB,'users',u.uid),s=>{if(s.exists()&&(+s.data().rev||0)>(SM.rev||0)&&!SY.busy)syncNow();},()=>{});}catch(e){}
+  render();syncNow();
+}
+async function syLogin(){
+  if(!FBM){await syInit();if(!FBM)return;}
+  const A=FBM.auth,p=new A.GoogleAuthProvider();try{p.setCustomParameters({prompt:'select_account'});}catch(e){}
+  try{await A.signInWithPopup(FBAUTH,p);}
+  catch(e){
+    const c=e&&e.code;
+    if(c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request')return;
+    if(c==='auth/popup-blocked'||c==='auth/operation-not-supported-in-this-environment'){try{await A.signInWithRedirect(FBAUTH,p);return;}catch(e2){e=e2;}}
+    SY.err=syErr(e);render();
+  }
+}
+async function syLogout(){
+  try{if(FBM)await FBM.auth.signOut(FBAUTH);}catch(e){}
+  SM={};smSave();try{localStorage.removeItem(SYBASE);}catch(e){}
+  SY.user=null;SY.state='out';SY.err='';SY.last=0;render();
+}
+const syCatSig=cs=>{const m=new Map(cs.map(c=>[c.id,c]));return cs.map(c=>{const p=c.parentId&&m.get(c.parentId);return c.type+'|'+(p?p.name:'')+'|'+c.name+'|'+c.icon+'|'+c.color;}).sort().join('\n');};
+const syPristine=d=>!d.tx.length&&!d.rec.length&&!d.limit&&syCatSig(d.cats)===syCatSig(buildCats());
+/* first link of two devices that both have data: categories with the same name path are the same category */
+function syRemap(loc,rem){
+  const path=(m,c)=>{const o=[];let x=c,g=0;while(x&&g++<50){o.unshift(x.name);x=x.parentId?m.get(x.parentId):null;}return c.type+'|'+o.join('/');};
+  const lm=new Map(loc.cats.map(c=>[c.id,c])),rm=new Map(rem.cats.map(c=>[c.id,c])),lk=new Map(),idm=new Map();
+  loc.cats.forEach(c=>lk.set(path(lm,c),c.id));
+  rem.cats.forEach(c=>{const l=lk.get(path(rm,c));if(l&&l!==c.id)idm.set(c.id,l);});
+  if(!idm.size)return rem;
+  const f=id=>id&&idm.has(id)?idm.get(id):(id||null);
+  return Object.assign({},rem,{
+    cats:rem.cats.filter(c=>!idm.has(c.id)).map(c=>Object.assign({},c,{parentId:f(c.parentId)})),
+    tx:rem.tx.map(t=>Object.assign({},t,{categoryId:f(t.categoryId)})),
+    rec:rem.rec.map(r=>Object.assign({},r,{categoryId:f(r.categoryId)}))});
+}
+function syList(b,l,r,pick){
+  const B=new Map(b.map(x=>[x.id,x])),L=new Map(l.map(x=>[x.id,x])),R=new Map(r.map(x=>[x.id,x])),out=[],seen=new Set();
+  for(const id of l.map(x=>x.id).concat(r.map(x=>x.id))){
+    if(seen.has(id))continue;seen.add(id);
+    const x=L.get(id),y=R.get(id),o=B.get(id);
+    if(x&&y)out.push(pick(x,y,o));
+    else if(x){if(!o||sj(x)!==sj(o))out.push(x);}     /* deleted on the other side and untouched here: gone */
+    else if(y){if(!o||sj(y)!==sj(o))out.push(y);}
+  }
+  return out;
+}
+function syMerge(base,loc,rem){
+  if(!base)rem=syRemap(loc,rem);
+  const bs=base||{cats:[],tx:[],rec:[]};
+  const pk=(x,y,o,newer)=>{if(sj(x)===sj(y))return x;if(o){if(sj(x)===sj(o))return y;if(sj(y)===sj(o))return x;}return newer(x,y);};
+  const ts=t=>t.updatedAt||t.createdAt||0;
+  const cats=syList(bs.cats,loc.cats,rem.cats,(x,y,o)=>pk(x,y,o,a=>a));
+  const tx=syList(bs.tx,loc.tx,rem.tx,(x,y,o)=>pk(x,y,o,(a,b)=>ts(b)>ts(a)?b:a));
+  const rec=syList(bs.rec,loc.rec,rem.rec,(x,y,o)=>Object.assign({},pk(x,y,o,a=>a),{n:Math.max(x.n,y.n)}));
+  const sc=(k)=>!base||loc[k]!==base[k]?loc[k]:rem[k];
+  return norm({conv:sc('conv'),limit:sc('limit'),cats,tx,rec});
+}
+function syApply(n){
+  D=n;rebuild();flush();render();
+}
+function syBase(d){try{localStorage.setItem(SYBASE,JSON.stringify(d));}catch(e){}}
+/* one reconcile pass; resolves true when finished, false when somebody else wrote meanwhile (caller retries) */
+async function syStep(){
+  const fs=FBM.fs,ref=fs.doc(FBDB,'users',SY.user.uid);
+  const snap=await fs.getDoc(ref),rd=snap.exists()?snap.data():null,rrev=rd?(+rd.rev||0):0;
+  let remote=null;
+  if(rd){try{remote=migrate(JSON.parse(rd.data));}catch(e){}if(!remote)throw new Error('bad remote data');}
+  const base=migrate(readKey(SYBASE)),seq0=SM.seq|0;
+  let out=D;
+  if(rd&&rrev===(SM.rev||0)&&base){
+    if(!SM.dirty)return true;
+  }else if(rd){
+    if(!base&&syPristine(D)){syApply(remote);syBase(remote);SM.rev=rrev;SM.dirty=false;smSave();return true;}
+    out=syMerge(base,D,remote);syApply(out);
+    if(JSON.stringify(out)===JSON.stringify(remote)){syBase(out);SM.rev=rrev;SM.dirty=(SM.seq|0)!==seq0;smSave();return true;}
+  }
+  const payload=JSON.stringify(out);
+  if(payload.length>900000)throw new Error('too-big');
+  const ok=await fs.runTransaction(FBDB,async tx=>{
+    const s=await tx.get(ref),cur=s.exists()?(+s.data().rev||0):0;
+    if(cur!==rrev)return false;
+    tx.set(ref,{rev:rrev+1,data:payload,updatedAt:fs.serverTimestamp()});return true;
+  });
+  if(!ok)return false;
+  syBase(JSON.parse(payload));SM.rev=rrev+1;SM.dirty=(SM.seq|0)!==seq0;smSave();return true;
+}
+async function syncNow(){
+  if(SY.state!=='in'||!FBM||!SY.user)return;
+  if(SY.busy){syQ=true;return;}
+  clearTimeout(syT);SY.busy=true;SY.err='';render();
+  try{
+    let done=false;for(let a=0;a<5&&!done;a++)done=await syStep();
+    if(!done)throw new Error('Данные меняются слишком часто, повторите позже');
+    SY.last=Date.now();
+  }catch(e){SY.err=syErr(e);}
+  SY.busy=false;render();
+  if(syQ||SM.dirty){const again=syQ;syQ=false;if(again||(SM.dirty&&!SY.err))syT=setTimeout(syncNow,300);}
+}
+const syncSoon=()=>{if(SY.state==='in')syncNow();};
+window.addEventListener('online',syncSoon);
+SH.sync=()=>{
+  const st=SY.state;let h=shHead('Облако и синхронизация')+'<div class="pg sbody">';
+  if(st==='noconfig'){
+    return h+'<div class="hint">Синхронизация между устройствами не подключена. Она работает в версии приложения на сайте (GitHub Pages) после настройки Firebase — шаги описаны в файле README.</div></div>';
+  }
+  if(st==='in'&&SY.user){
+    const stat=SY.busy?'<span class="spin" style="display:inline-grid;vertical-align:-3px;margin-right:6px">'+ico('repeat',16)+'</span>Синхронизация…':SY.err?'':(SM.dirty?'Есть изменения, отправляются…':'Всё синхронизировано'+(SY.last?' · '+esc(fmtTs(SY.last)):''));
+    h+='<div class="ratec"><span class="lbl">Аккаунт Google</span><span class="rv" style="font-size:18px;word-break:break-all">'+esc(SY.user.email||SY.user.name||'Вы вошли')+'</span>'+(stat?'<span class="hint">'+stat+'</span>':'')+(SY.err?'<span class="rerr">'+esc(SY.err)+'</span>':'')+'<div class="ra"><button class="btn soft sm" data-a="sy-now"'+(SY.busy?' disabled':'')+'>'+ico('repeat',16)+'Синхронизировать сейчас</button><button class="btn ghost sm" data-a="sy-out">Выйти</button></div></div>';
+    return h+'<div class="hint">Данные хранятся в вашем облачном аккаунте и подтягиваются на все устройства, где вы вошли под этим Google-аккаунтом. Без интернета приложение работает как обычно, изменения отправятся позже.</div></div>';
+  }
+  if(st==='loading')return h+'<div class="hint"><span class="spin" style="display:inline-grid;vertical-align:-3px;margin-right:6px">'+ico('repeat',16)+'</span>Загрузка…</div></div>';
+  if(st==='unavailable')return h+'<div class="rerr">'+esc(SY.err)+'</div><button class="btn" data-a="sy-retry">Повторить</button></div>';
+  h+='<div class="hint">Войдите через Google, чтобы данные сохранялись в облаке и были одинаковыми на телефоне и компьютере. Если на этом устройстве уже есть операции, они объединятся с теми, что в облаке.</div>';
+  if(SY.err)h+='<div class="rerr">'+esc(SY.err)+'</div>';
+  return h+'<button class="btn" data-a="sy-login">'+ico('user',18)+'Войти через Google</button></div>';
+};
+
 const ACT={
   add(){openAdd();},
   mon(el){UI.off=Math.min(0,UI.off+Number(el.dataset.d));UI.cnode=null;render();},
@@ -1164,6 +1338,11 @@ const ACT={
     FX={ts:Date.now(),date:todayISO(),src:MANUAL,r:Object.assign({},FX&&FX.r,{[D.conv]:r})};fxSave();FXST.err='';
     s.data.edit=false;render();toast('Курс сохранён');
   },
+  'm-sync'(el){const s=sheetOf(el);closeSheetObj(s,true);openSheet('sync',{});if(fbReady)syInit();},
+  'sy-login'(){syLogin();},
+  'sy-now'(){syncNow();},
+  'sy-out'(el){const s=sheetOf(el);closeSheetObj(s,true);confirmBox({title:'Выйти из облака?',text:'Данные останутся на этом устройстве и в облаке, но перестанут синхронизироваться. Войти снова можно в любой момент.',ok:'Выйти',cb:()=>{syLogout();toast('Вы вышли из облака');}});},
+  'sy-retry'(){FBP=null;SY.state='idle';SY.err='';syInit();},
   'm-backup'(){saveFile('moi-koshelek-'+todayISO()+'.json',JSON.stringify(D));},
   'm-restore'(el){const s=sheetOf(el);closeSheetObj(s,true);openSheet('restore',{text:'',err:''});},
   'restore-go'(el){
@@ -1172,7 +1351,7 @@ const ACT={
     if(!n){s.data.err='Это не похоже на резервную копию кошелька.';paintSheet(s);return;}
     D=n;applyRecurring();UI.page=null;UI.f='all';UI.cnode=null;UI.off=0;UI.sheets.slice().forEach(x=>closeSheetObj(x,true));commit();flush();toast('Данные восстановлены');
   },
-  'm-wipe'(el){const s=sheetOf(el);closeSheetObj(s,true);confirmBox({title:'Удалить все данные?',text:'Все операции и свои категории будут удалены. Сначала лучше сохранить копию.',ok:'Удалить',danger:true,cb:()=>withUndo('Все данные удалены',()=>{const cur=D.cur,lim=D.limit;D=emptyData();D.cur=cur;D.limit=lim;UI.page=null;UI.f='all';UI.cnode=null;UI.off=0;})});}
+  'm-wipe'(el){const s=sheetOf(el);closeSheetObj(s,true);confirmBox({title:'Удалить все данные?',text:'Все операции и свои категории будут удалены'+(SY.state==='in'?' на этом устройстве, в облаке и на всех синхронизированных устройствах':'')+'. Сначала лучше сохранить копию.',ok:'Удалить',danger:true,cb:()=>withUndo('Все данные удалены',()=>{const cur=D.cur,lim=D.limit;D=emptyData();D.cur=cur;D.limit=lim;UI.page=null;UI.f='all';UI.cnode=null;UI.off=0;})});}
 };
 
 /* ================= events ================= */
@@ -1216,7 +1395,7 @@ document.addEventListener('keydown',e=>{
   else if(k==='Enter'){saveAdd(s);e.preventDefault();}
 });
 function dayTick(){const t=todayISO();if(t===lastDay)return;lastDay=t;if(applyRecurring())commit();else render();}
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){dayTick();maybeFetchRates();}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){dayTick();maybeFetchRates();syncSoon();}});
 setInterval(dayTick,60000);
 
 /* ================= boot ================= */
@@ -1227,8 +1406,7 @@ $('#fab').innerHTML=ico('plus',22)+'<span>Добавить</span>';
 if(STORE_OK)flush();
 render();
 maybeFetchRates();
-window.__app={get D(){return D;},get FX(){return FX;},set FX(v){FX=v;},themeNow,sec,fetchRates,UI,ACT,render,commit,recDate,applyRecurring,money,balance,slices,monthRange,migrate,fresh};
+if(fbReady&&SM.uid)syInit();
+window.__app={SY,get SM(){return SM;},syncNow,syMerge,syRemap,get D(){return D;},get FX(){return FX;},set FX(v){FX=v;},themeNow,sec,fetchRates,UI,ACT,render,commit,recDate,applyRecurring,money,balance,slices,monthRange,migrate,fresh};
 })();
 </script>
-
-</body></html>
