@@ -1,9 +1,10 @@
-/* Публичная конфигурация веб-приложения Firebase (Project settings → General → Your apps → Web app → firebaseConfig).
-   Эти значения не секретные: доступ к данным защищают правила Firestore (firestore.rules) и вход через Google.
-   Пока здесь стоят заглушки PASTE_…, облачная синхронизация выключена, приложение работает только локально. */
+/* Публичная конфигурация веб-приложения Firebase (проект some-cbf16).
+   Эти значения не секретные: доступ к данным защищают правила Firestore (firestore.rules) и вход через Google. */
 window.FIREBASE_CONFIG = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyCaaT6NHYJUsS-2VZ3266ulgutUZhCN5LQ",
+  authDomain: "some-cbf16.firebaseapp.com",
+  projectId: "some-cbf16",
+  storageBucket: "some-cbf16.firebasestorage.app",
+  messagingSenderId: "929694467970",
+  appId: "1:929694467970:web:8a5b4d778ff3a0476f319b"
 };
