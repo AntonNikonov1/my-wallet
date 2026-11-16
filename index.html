@@ -283,8 +283,14 @@ textarea.inp{height:150px;padding:14px 16px;resize:none;font-weight:500;font-siz
 /* secondary (converted) currency */
 .sec{color:var(--mute);font-weight:700;font-size:13px;white-space:nowrap}
 .card.dark .sec,.card.acc .sec{color:rgba(255,255,255,.62)}
-.fc .sec{font-size:12.5px;margin-top:-2px}
-.amt2{display:block;color:var(--mute);font-weight:600;font-size:11.5px;white-space:nowrap;margin-top:1px}
+.fc .fvr{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 8px;min-width:0}
+.fc .sec{font-size:12.5px}
+.balrow{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 12px;max-width:100%}
+.balrow .sec{font-size:15px}
+.cvchip{align-self:center;display:inline-flex;align-items:center;gap:4px;height:30px;padding:0 10px;border-radius:99px;background:var(--soft);color:var(--accent);font-weight:800;font-size:13px}
+.cvchip:active{transform:scale(.96)}
+.row .r{flex:0 1 auto;max-width:62%;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:0 6px}
+.amt2{color:var(--mute);font-weight:600;font-size:12px;white-space:nowrap}
 .amtsec{min-height:17px;font-size:14px;margin-top:2px}
 .donut .dc .sec{font-size:11.5px}
 /* category editor: icon + colour pickers */
@@ -709,8 +715,8 @@ function viewMain(){
   const inc=sum(list,'income'),exp=sum(list,'expense');
   let h='<div class="pg col" style="gap:18px"><header class="hd"><div class="mnav"><button class="ib sm" data-a="mon" data-d="-1" aria-label="Предыдущий месяц">'+ico('back',18)+'</button><b class="mlab">'+r.label+'</b><button class="ib sm" data-a="mon" data-d="1" aria-label="Следующий месяц"'+(UI.off>=0?' disabled style="opacity:.3"':'')+'>'+ico('chev',18)+'</button></div><div class="hr"><button class="ib" data-a="theme" aria-label="'+(themeNow()==='dark'?'Светлая тема':'Тёмная тема')+'">'+ico(themeNow()==='dark'?'sun':'moon',20)+'</button><button class="ib" data-a="menu" aria-label="Меню">'+ico('dots',20)+'</button></div></header>';
   if(!STORE_OK)h+='<div class="card" style="background:var(--warn-bg);color:var(--warn);font-weight:700">Браузер не даёт сохранять данные: после закрытия страницы они пропадут. Сохраняйте копию через меню ⋯</div>';
-  h+='<div class="balblk"><span class="lbl">Баланс</span>'+bigMoney(balance())+secLine(balance())+'</div>';
-  h+='<div class="duo"><button class="card dark fc" data-a="filt" data-v="income"><span class="fi">'+ico('arrowdown',18)+'</span><span class="lbl w">Доходы</span><b class="fv">'+money(inc,{dec:0})+'</b>'+secLine(inc,{abs:true})+'</button><button class="card acc fc" data-a="filt" data-v="expense"><span class="fi">'+ico('arrowup',18)+'</span><span class="lbl w">Расходы</span><b class="fv">'+money(exp,{dec:0})+'</b>'+secLine(exp,{abs:true})+'</button></div>';
+  h+='<div class="balblk"><span class="lbl">Баланс</span>'+'<div class="balrow">'+bigMoney(balance())+secLine(balance())+'<button class="cvchip" data-a="cv-open" aria-label="Валюта пересчёта">'+(D.conv||'Валюта')+ico('down',14)+'</button></div></div>';
+  h+='<div class="duo"><button class="card dark fc" data-a="filt" data-v="income"><span class="fi">'+ico('arrowdown',18)+'</span><span class="lbl w">Доходы</span><span class="fvr"><b class="fv">'+money(inc,{dec:0})+'</b>'+secLine(inc,{abs:true})+'</span></button><button class="card acc fc" data-a="filt" data-v="expense"><span class="fi">'+ico('arrowup',18)+'</span><span class="lbl w">Расходы</span><span class="fvr"><b class="fv">'+money(exp,{dec:0})+'</b>'+secLine(exp,{abs:true})+'</span></button></div>';
   h+=limitWidget(exp);
   if(!D.tx.length)h+='<div class="card soft" style="text-align:center;display:flex;flex-direction:column;gap:6px"><b style="font-size:16px">Начните с первой операции</b><span class="hint">Нажмите «Добавить» внизу. Категории и подкатегории любой глубины настраиваются в меню ⋯</span></div>';
   else h+=catPreview(list)+opsSection(list);
@@ -830,11 +836,11 @@ SH.cur=d=>{
   if(cv){
     const toPln=cv!=='UAH',sym=CURS[cv][0];
     const shown=rate?(toPln?'1 '+sym+' = '+fx4(1/rate)+' zł':'1 zł = '+fx4(rate)+' '+sym):'Курс не загружен';
-    const src=rate&&FX?(FX.src===MANUAL?'Введён вручную':FX.src+' · '+fmtD(FX.date,{short:true})+' · средний курс'):'';
+    const src=rate&&FX?(FX.src===MANUAL?'Введён вручную':FX.src+' · '+fmtD(FX.date,{short:true})):'';
     h+='<div class="ratec"><span class="lbl">Курс</span><span class="rv">'+shown+'</span>'+(src?'<span class="hint">'+esc(src)+'</span>':'')+(FXST.err?'<span class="rerr">'+esc(FXST.err)+'</span>':'');
     if(d.edit)h+='<input id="cvv" class="inp" data-bind="rv" inputmode="decimal" autocomplete="off" placeholder="'+(toPln?'Сколько zł за 1 '+esc(sym):'Сколько '+esc(sym)+' за 1 zł')+'" value="'+esc(d.rv||'')+'"><div class="ra"><button class="btn sm" data-a="cv-msave">Сохранить</button><button class="btn ghost sm" data-a="cv-mcancel">Отмена</button></div>';
     else h+='<div class="ra"><button class="btn soft sm" data-a="cv-refresh"'+(FXST.busy?' disabled':'')+'><span class="'+(FXST.busy?'spin':'')+'" style="display:grid">'+ico('repeat',16)+'</span>'+(FXST.busy?'Загрузка…':'Обновить курс')+'</button><button class="btn ghost sm" data-a="cv-manual">Ввести вручную</button></div>';
-    h+='</div><div class="hint">Курс подтягивается из ПриватБанка (если он недоступен — из НБУ) раз в несколько часов. Это средний курс покупки и продажи, суммы со знаком «≈» ориентировочные.</div>';
+    h+='</div><div class="hint">Курс подтягивается сам из открытых источников (Нацбанк Польши, ПриватБанк, НБУ и других — берётся первый, что ответил) раз в несколько часов. Это курс без комиссий банков, суммы со знаком «≈» ориентировочные.</div>';
   }
   return h+'</div>';
 };
@@ -1048,31 +1054,34 @@ const fxSave=()=>{try{localStorage.setItem(FXKEY,JSON.stringify(FX));}catch(e){}
 const rateOf=c=>{const r=FX&&c?+FX.r[c]:0;return r>0&&isFinite(r)?r:0;};
 function sec(c,o){o=o||{};const r=rateOf(D.conv);if(!r||MASK)return '';const v=Math.round((o.abs?Math.abs(c):c)*r);return '≈ '+moneyIn(D.conv,v,{dec:Math.abs(v)<10000?undefined:0});}
 const secLine=(c,o)=>{const t=sec(c,o);return t?'<span class="sec">'+t+'</span>':'';};
-async function pbRates(){
-  for(let i=0;i<4;i++){
-    const d=addDays(todayISO(),-i),p=d.split('-');
-    const res=await fetch('https://api.privatbank.ua/p24api/exchange_rates?json&date='+p[2]+'.'+p[1]+'.'+p[0],{cache:'no-store'});
-    if(!res.ok)continue;const j=await res.json(),L=j&&j.exchangeRate;if(!Array.isArray(L))continue;
-    const get=c=>{const x=L.find(y=>y.currency===c);if(!x)return 0;const a=+x.purchaseRate,b=+x.saleRate;if(a>0&&b>0)return (a+b)/2;const n=+x.saleRateNB||+x.purchaseRateNB;return n>0?n:0;};
-    const pl=get('PLN'),us=get('USD'),eu=get('EUR');
-    if(pl&&us&&eu)return {date:d,src:'ПриватБанк',pl,us,eu};
-  }
-  throw new Error('pb');
-}
-async function nbuRates(){
-  const res=await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json',{cache:'no-store'});
-  if(!res.ok)throw new Error('nbu');const L=await res.json();
-  const get=c=>{const x=Array.isArray(L)&&L.find(y=>y.cc===c);return x&&+x.rate>0?+x.rate:0;};
-  const pl=get('PLN'),us=get('USD'),eu=get('EUR');if(!(pl&&us&&eu))throw new Error('nbu');
-  return {date:todayISO(),src:'НБУ',pl,us,eu};
-}
+const FX_TMO=8000;
+function getJSON(url){const c=typeof AbortController==='function'?new AbortController():null,t=setTimeout(()=>{if(c)c.abort();},FX_TMO);return fetch(url,c?{signal:c.signal,cache:'no-store'}:{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json();}).finally(()=>clearTimeout(t));}
+const okR=n=>n>0&&isFinite(n);
+function viaUAH(pl,eu,us,date){if(!(okR(pl)&&okR(eu)&&okR(us)))throw new Error('bad rates');return {date,r:{UAH:pl,EUR:pl/eu,USD:pl/us}};}
+/* tried all at once; the first one (in this order) that answers wins */
+const FX_SOURCES=[
+  {name:'Нацбанк Польши',get:async()=>{const t=(await getJSON('https://api.nbp.pl/api/exchangerates/tables/A/?format=json'))[0],m=c=>{const x=t.rates.find(y=>y.code===c);return x?+x.mid:0;};const e=m('EUR'),u=m('USD'),h=m('UAH');if(!(okR(e)&&okR(u)&&okR(h)))throw new Error('bad rates');return {date:t.effectiveDate,r:{EUR:1/e,USD:1/u,UAH:1/h}};}},
+  {name:'ExchangeRate-API',get:async()=>{const q=(await getJSON('https://open.er-api.com/v6/latest/PLN')).rates||{};if(!(okR(+q.EUR)&&okR(+q.USD)&&okR(+q.UAH)))throw new Error('bad rates');return {date:todayISO(),r:{EUR:+q.EUR,USD:+q.USD,UAH:+q.UAH}};}},
+  {name:'ПриватБанк',get:async()=>{
+    for(let i=0;i<4;i++){
+      const d=addDays(todayISO(),-i),p=d.split('-');
+      let L;try{L=(await getJSON('https://api.privatbank.ua/p24api/exchange_rates?json&date='+p[2]+'.'+p[1]+'.'+p[0])).exchangeRate;}catch(e){if(i===0)throw e;continue;}
+      if(!Array.isArray(L))continue;
+      const get=c=>{const x=L.find(y=>y.currency===c);if(!x)return 0;const u=+x.purchaseRate,v=+x.saleRate;if(u>0&&v>0)return (u+v)/2;const n=+x.saleRateNB||+x.purchaseRateNB;return n>0?n:0;};
+      const pl=get('PLN'),us=get('USD'),eu=get('EUR');
+      if(pl&&us&&eu)return viaUAH(pl,eu,us,d);
+    }
+    throw new Error('no data');}},
+  {name:'НБУ',get:async()=>{const L=await getJSON('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json');const get=c=>{const x=Array.isArray(L)&&L.find(y=>y.cc===c);return x?+x.rate:0;};return viaUAH(get('PLN'),get('EUR'),get('USD'),todayISO());}},
+  {name:'currency-api',get:async()=>{let j;try{j=await getJSON('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/pln.json');}catch(e){j=await getJSON('https://latest.currency-api.pages.dev/v1/currencies/pln.json');}const q=j.pln||{};if(!(okR(+q.eur)&&okR(+q.usd)&&okR(+q.uah)))throw new Error('bad rates');return {date:j.date||todayISO(),r:{EUR:+q.eur,USD:+q.usd,UAH:+q.uah}};}}
+];
 async function fetchRates(){
   if(FXST.busy||typeof fetch!=='function')return;FXST.busy=true;FXST.err='';render();
-  let r=null;
-  try{r=await pbRates();}catch(e){try{r=await nbuRates();}catch(e2){}}
+  const res=await Promise.allSettled(FX_SOURCES.map(x=>x.get()));
   FXST.busy=false;
-  if(r){FX={ts:Date.now(),date:r.date,src:r.src,r:{UAH:r.pl,EUR:r.pl/r.eu,USD:r.pl/r.us}};fxSave();}
-  else FXST.err='Не удалось загрузить курс. Проверьте интернет или введите курс вручную.';
+  const i=res.findIndex(x=>x.status==='fulfilled');
+  if(i>=0){const v=res[i].value;FX={ts:Date.now(),date:v.date,src:FX_SOURCES[i].name,r:v.r};fxSave();}
+  else FXST.err='Не удалось загрузить курс: сервисы курсов не отвечают (проверьте интернет). Можно ввести курс вручную.';
   render();
 }
 function maybeFetchRates(force){if(!D||!D.conv||FXST.busy)return;if(!force&&FX&&(FX.src===MANUAL||Date.now()-FX.ts<FX_TTL))return;fetchRates();}
@@ -1140,6 +1149,7 @@ const ACT={
   /* menu */
   theme(){themeToggle();},
   'm-cur'(el){const s=sheetOf(el);closeSheetObj(s,true);openSheet('cur',{edit:false,rv:''});maybeFetchRates();},
+  'cv-open'(){openSheet('cur',{edit:false,rv:''});maybeFetchRates();},
   'cv-pick'(el){const v=el.dataset.v||'';D.conv=v;save();FXST.err='';render();if(v)maybeFetchRates(!rateOf(v));},
   'cv-refresh'(){fetchRates();},
   'cv-manual'(el){const s=sheetOf(el);s.data.edit=true;s.data.rv='';paintSheet(s);const i=$('#cvv',s.el);if(i)i.focus();},
