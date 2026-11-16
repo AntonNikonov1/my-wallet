@@ -839,7 +839,7 @@ SH.cur=d=>{
     const src=rate&&FX?(FX.src===MANUAL?'Введён вручную':FX.src+' · '+fmtD(FX.date,{short:true})):'';
     h+='<div class="ratec"><span class="lbl">Курс</span><span class="rv">'+shown+'</span>'+(src?'<span class="hint">'+esc(src)+'</span>':'')+(FXST.err?'<span class="rerr">'+esc(FXST.err)+'</span>':'');
     if(d.edit)h+='<input id="cvv" class="inp" data-bind="rv" inputmode="decimal" autocomplete="off" placeholder="'+(toPln?'Сколько zł за 1 '+esc(sym):'Сколько '+esc(sym)+' за 1 zł')+'" value="'+esc(d.rv||'')+'"><div class="ra"><button class="btn sm" data-a="cv-msave">Сохранить</button><button class="btn ghost sm" data-a="cv-mcancel">Отмена</button></div>';
-    else h+='<div class="ra"><button class="btn soft sm" data-a="cv-refresh"'+(FXST.busy?' disabled':'')+'><span class="'+(FXST.busy?'spin':'')+'" style="display:grid">'+ico('repeat',16)+'</span>'+(FXST.busy?'Загрузка…':'Обновить курс')+'</button><button class="btn ghost sm" data-a="cv-manual">Ввести вручную</button></div>';
+    else h+='<div class="ra"><button class="btn soft sm" data-a="cv-refresh"'+(FXST.busy?' disabled':'')+'><span class="'+(FXST.busy?'spin':'')+'" style="display:grid">'+ico('repeat',16)+'</span>'+(FXST.busy?'Загрузка…':'Обновить курс')+'</button><button class="btn ghost sm" data-a="cv-manual">Ввести вручную</button>'+(FX&&FX.src===MANUAL?'<button class="btn ghost sm" data-a="cv-reset">Сбросить ручной курс</button>':'')+'</div>';
     h+='</div><div class="hint">Курс подтягивается сам из открытых источников (Нацбанк Польши, ПриватБанк, НБУ и других — берётся первый, что ответил) раз в несколько часов. Это курс без комиссий банков, суммы со знаком «≈» ориентировочные.</div>';
   }
   return h+'</div>';
@@ -1048,7 +1048,9 @@ try{const mq=matchMedia('(prefers-color-scheme: dark)');const f=()=>{if(!THEME){
 
 /* ================= conversion: second currency next to złoty (PrivatBank rate) ================= */
 const FXKEY='mywallet.fx',FX_TTL=6*3600*1000,MANUAL='вручную';
-let FX=readKey(FXKEY);if(!(FX&&FX.r&&typeof FX.r==='object'))FX=null;
+/* Built-in snapshot (NBP table A of 16 Nov 2026). Used until a live rate arrives and wherever the network is closed (e.g. inside the Claude preview). */
+const FX_SEED={ts:0,date:'2026-11-16',src:'Нацбанк Польши (встроенный)',r:{EUR:1/4.4048,USD:1/4.0007,UAH:1/0.088}};
+let FX=readKey(FXKEY);if(!(FX&&FX.r&&typeof FX.r==='object'))FX=FX_SEED;
 const FXST={busy:false,err:''};
 const fxSave=()=>{try{localStorage.setItem(FXKEY,JSON.stringify(FX));}catch(e){}};
 const rateOf=c=>{const r=FX&&c?+FX.r[c]:0;return r>0&&isFinite(r)?r:0;};
@@ -1081,7 +1083,7 @@ async function fetchRates(){
   FXST.busy=false;
   const i=res.findIndex(x=>x.status==='fulfilled');
   if(i>=0){const v=res[i].value;FX={ts:Date.now(),date:v.date,src:FX_SOURCES[i].name,r:v.r};fxSave();}
-  else FXST.err='Не удалось загрузить курс: сервисы курсов не отвечают (проверьте интернет). Можно ввести курс вручную.';
+  else FXST.err='Не удалось обновить курс из интернета. '+(window.claude?'В окне Claude приложению закрыт выход в сеть, на сайте GitHub Pages курс обновится сам. ':'Проверьте интернет. ')+'Показан последний известный курс.';
   render();
 }
 function maybeFetchRates(force){if(!D||!D.conv||FXST.busy)return;if(!force&&FX&&(FX.src===MANUAL||Date.now()-FX.ts<FX_TTL))return;fetchRates();}
@@ -1152,6 +1154,7 @@ const ACT={
   'cv-open'(){openSheet('cur',{edit:false,rv:''});maybeFetchRates();},
   'cv-pick'(el){const v=el.dataset.v||'';D.conv=v;save();FXST.err='';render();if(v)maybeFetchRates(!rateOf(v));},
   'cv-refresh'(){fetchRates();},
+  'cv-reset'(){FX=FX_SEED;try{localStorage.removeItem(FXKEY);}catch(e){}FXST.err='';render();fetchRates();},
   'cv-manual'(el){const s=sheetOf(el);s.data.edit=true;s.data.rv='';paintSheet(s);const i=$('#cvv',s.el);if(i)i.focus();},
   'cv-mcancel'(el){const s=sheetOf(el);s.data.edit=false;paintSheet(s);},
   'cv-msave'(el){
