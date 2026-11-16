@@ -837,7 +837,7 @@ SH.cur=d=>{
   if(cv){
     const toPln=cv!=='UAH',sym=CURS[cv][0];
     const shown=rate?(toPln?'1 '+sym+' = '+fx4(1/rate)+' zł':'1 zł = '+fx4(rate)+' '+sym):'Курс не загружен';
-    const src=rate&&FX?(FX.src===MANUAL?'Введён вручную':FX.src+' · '+fmtD(FX.date,{short:true})):'';
+    const src=rate&&FX?(FX.src===MANUAL?'Введён вручную · заменится курсом банка при следующем обновлении':FX.src+' · '+fmtD(FX.date,{short:true})):'';
     h+='<div class="ratec"><span class="lbl">Курс</span><span class="rv">'+shown+'</span>'+(src?'<span class="hint">'+esc(src)+'</span>':'')+(FXST.err?'<span class="rerr">'+esc(FXST.err)+'</span>':'')+(FXST.err&&FXST.log.length?'<div class="flog">'+FXST.log.map(l=>'<div>'+(l.ok?'✓ ':'✗ ')+esc(l.name)+' — '+esc(l.msg)+'</div>').join('')+'</div>':'');
     if(d.edit)h+='<input id="cvv" class="inp" data-bind="rv" inputmode="decimal" autocomplete="off" placeholder="'+(toPln?'Сколько zł за 1 '+esc(sym):'Сколько '+esc(sym)+' за 1 zł')+'" value="'+esc(d.rv||'')+'"><div class="ra"><button class="btn sm" data-a="cv-msave">Сохранить</button><button class="btn ghost sm" data-a="cv-mcancel">Отмена</button></div>';
     else h+='<div class="ra"><button class="btn soft sm" data-a="cv-refresh"'+(FXST.busy?' disabled':'')+'><span class="'+(FXST.busy?'spin':'')+'" style="display:grid">'+ico('repeat',16)+'</span>'+(FXST.busy?'Загрузка…':'Обновить курс')+'</button><button class="btn ghost sm" data-a="cv-manual">Ввести вручную</button>'+(FX&&FX.src===MANUAL?'<button class="btn ghost sm" data-a="cv-reset">Сбросить ручной курс</button>':'')+'</div>';
@@ -1086,7 +1086,7 @@ async function fetchRates(){
   else FXST.err='Не удалось обновить курс из интернета. '+(window.claude?'В окне Claude приложению закрыт выход в сеть, откройте приложение на сайте GitHub Pages. ':'Проверьте интернет. ')+(rateOf(D.conv)?'Показан последний известный курс.':'Можно ввести курс вручную.');
   render();
 }
-function maybeFetchRates(force){if(!D||!D.conv||FXST.busy)return;if(!force&&FX&&(FX.src===MANUAL||Date.now()-FX.ts<FX_TTL))return;fetchRates();}
+function maybeFetchRates(force){if(!D||!D.conv||FXST.busy)return;if(!force&&FX&&Date.now()-FX.ts<FX_TTL)return;fetchRates();}
 const fx4=n=>n.toFixed(4).replace('.',',');
 const ACT={
   add(){openAdd();},
