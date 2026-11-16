@@ -312,6 +312,7 @@ textarea.inp{height:150px;padding:14px 16px;resize:none;font-weight:500;font-siz
 .ratec .rv{font-size:22px;font-weight:800;letter-spacing:-.02em}
 .ratec .hint{margin:0}
 .ratec .ra{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.flog{font-size:12px;color:var(--mute);line-height:1.5;margin-top:2px}
 .rerr{color:var(--neg);font-weight:700;font-size:13px}
 .radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--faint);display:grid;place-items:center;flex:none;color:#fff}
 .radio.on{background:var(--accent);border-color:var(--accent)}
@@ -837,7 +838,7 @@ SH.cur=d=>{
     const toPln=cv!=='UAH',sym=CURS[cv][0];
     const shown=rate?(toPln?'1 '+sym+' = '+fx4(1/rate)+' zł':'1 zł = '+fx4(rate)+' '+sym):'Курс не загружен';
     const src=rate&&FX?(FX.src===MANUAL?'Введён вручную':FX.src+' · '+fmtD(FX.date,{short:true})):'';
-    h+='<div class="ratec"><span class="lbl">Курс</span><span class="rv">'+shown+'</span>'+(src?'<span class="hint">'+esc(src)+'</span>':'')+(FXST.err?'<span class="rerr">'+esc(FXST.err)+'</span>':'');
+    h+='<div class="ratec"><span class="lbl">Курс</span><span class="rv">'+shown+'</span>'+(src?'<span class="hint">'+esc(src)+'</span>':'')+(FXST.err?'<span class="rerr">'+esc(FXST.err)+'</span>':'')+(FXST.err&&FXST.log.length?'<div class="flog">'+FXST.log.map(l=>'<div>'+(l.ok?'✓ ':'✗ ')+esc(l.name)+' — '+esc(l.msg)+'</div>').join('')+'</div>':'');
     if(d.edit)h+='<input id="cvv" class="inp" data-bind="rv" inputmode="decimal" autocomplete="off" placeholder="'+(toPln?'Сколько zł за 1 '+esc(sym):'Сколько '+esc(sym)+' за 1 zł')+'" value="'+esc(d.rv||'')+'"><div class="ra"><button class="btn sm" data-a="cv-msave">Сохранить</button><button class="btn ghost sm" data-a="cv-mcancel">Отмена</button></div>';
     else h+='<div class="ra"><button class="btn soft sm" data-a="cv-refresh"'+(FXST.busy?' disabled':'')+'><span class="'+(FXST.busy?'spin':'')+'" style="display:grid">'+ico('repeat',16)+'</span>'+(FXST.busy?'Загрузка…':'Обновить курс')+'</button><button class="btn ghost sm" data-a="cv-manual">Ввести вручную</button>'+(FX&&FX.src===MANUAL?'<button class="btn ghost sm" data-a="cv-reset">Сбросить ручной курс</button>':'')+'</div>';
     h+='</div><div class="hint">Курс подтягивается сам из открытых источников (Нацбанк Польши, ПриватБанк, НБУ и других — берётся первый, что ответил) раз в несколько часов. Это курс без комиссий банков, суммы со знаком «≈» ориентировочные.</div>';
@@ -1051,7 +1052,7 @@ const FXKEY='mywallet.fx',FX_TTL=6*3600*1000,MANUAL='вручную';
 /* Built-in snapshot (NBP table A of 16 Nov 2026). Used until a live rate arrives and wherever the network is closed (e.g. inside the Claude preview). */
 const FX_SEED={ts:0,date:'2026-11-16',src:'Нацбанк Польши (встроенный)',r:{EUR:1/4.4048,USD:1/4.0007,UAH:1/0.088}};
 let FX=readKey(FXKEY);if(!(FX&&FX.r&&typeof FX.r==='object'))FX=FX_SEED;
-const FXST={busy:false,err:''};
+const FXST={busy:false,err:'',log:[]};
 const fxSave=()=>{try{localStorage.setItem(FXKEY,JSON.stringify(FX));}catch(e){}};
 const rateOf=c=>{const r=FX&&c?+FX.r[c]:0;return r>0&&isFinite(r)?r:0;};
 function sec(c,o){o=o||{};const r=rateOf(D.conv);if(!r||MASK)return '';const v=Math.round((o.abs?Math.abs(c):c)*r);return '≈ '+moneyIn(D.conv,v,{dec:Math.abs(v)<10000?undefined:0});}
@@ -1082,6 +1083,7 @@ async function fetchRates(){
   const res=await Promise.allSettled(FX_SOURCES.map(x=>x.get()));
   FXST.busy=false;
   const i=res.findIndex(x=>x.status==='fulfilled');
+  FXST.log=res.map((x,k)=>({name:FX_SOURCES[k].name,ok:x.status==='fulfilled',msg:x.status==='fulfilled'?'ответил':(x.reason&&x.reason.name==='AbortError'?'нет ответа за 8 с':(x.reason&&/^http /.test(x.reason.message)?'ошибка '+x.reason.message:'запрос заблокирован (сеть, CORS или ограничения страницы)'))}));
   if(i>=0){const v=res[i].value;FX={ts:Date.now(),date:v.date,src:FX_SOURCES[i].name,r:v.r};fxSave();}
   else FXST.err='Не удалось обновить курс из интернета. '+(window.claude?'В окне Claude приложению закрыт выход в сеть, на сайте GitHub Pages курс обновится сам. ':'Проверьте интернет. ')+'Показан последний известный курс.';
   render();
