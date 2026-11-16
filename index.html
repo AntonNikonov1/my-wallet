@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#6a4cf5"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script>try{var t=localStorage.getItem("mywallet.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
 <title>Мой кошелёк</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
 <style>
@@ -276,6 +276,40 @@ textarea.inp{height:150px;padding:14px 16px;resize:none;font-weight:500;font-siz
 .cpplus.on{background:var(--accent);color:#fff}
 .row.cpnew{background:var(--soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .row.cpnew .t{color:var(--accent)}
+
+/* theme + header buttons */
+.hd .hr{display:flex;align-items:center;gap:8px;flex:none}
+@media (max-width:350px){.hd .hr{gap:6px}.hd .hr .ib{width:38px;height:38px}.hd .mnav{gap:4px}.hd .mlab{font-size:20px}}
+/* secondary (converted) currency */
+.sec{color:var(--mute);font-weight:700;font-size:13px;white-space:nowrap}
+.card.dark .sec,.card.acc .sec{color:rgba(255,255,255,.62)}
+.fc .sec{font-size:12.5px;margin-top:-2px}
+.amt2{display:block;color:var(--mute);font-weight:600;font-size:11.5px;white-space:nowrap;margin-top:1px}
+.amtsec{min-height:17px;font-size:14px;margin-top:2px}
+.donut .dc .sec{font-size:11.5px}
+/* category editor: icon + colour pickers */
+.cename{display:flex;gap:12px;align-items:center}
+.pkl{font-size:12.5px;font-weight:800;color:var(--mute);letter-spacing:.04em;text-transform:uppercase;margin-bottom:-6px}
+.igrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.igrid button{height:46px;border-radius:14px;background:var(--surface);color:var(--mute);display:grid;place-items:center;border:2px solid transparent}
+.igrid button.on{color:var(--cc);background:color-mix(in srgb,var(--cc) 14%,transparent);border-color:var(--cc)}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.cgrid button,.cgrid label{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;border:3px solid transparent;position:relative;box-shadow:inset 0 0 0 2px var(--bg);cursor:pointer}
+.cgrid .on{border-color:var(--ink)}
+.cgrid .cust{background:conic-gradient(#ef4444,#f5a524,#22c55e,#06b6d4,#3b82f6,#c026d3,#ef4444);color:#fff}
+.cgrid .cust input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+.cgrid button.on::after{content:"";width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.stk{position:sticky;bottom:-22px;z-index:2;background:var(--bg);padding:10px 0 34px;margin-bottom:-22px;box-shadow:0 -12px 14px -4px var(--bg)}
+.ratec .btn.ghost{background:var(--bg)}
+/* currency sheet */
+.ratec{display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:20px;padding:16px}
+.ratec .rv{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.ratec .hint{margin:0}
+.ratec .ra{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.rerr{color:var(--neg);font-weight:700;font-size:13px}
+.radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--faint);display:grid;place-items:center;flex:none;color:#fff}
+.radio.on{background:var(--accent);border-color:var(--accent)}
+.spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 #cplist{display:flex;flex-direction:column;gap:10px}
 #cplist .crumbs{margin-bottom:2px}
 .rpi{display:inline-flex;vertical-align:-2px;margin-left:6px;color:var(--accent)}
@@ -286,6 +320,12 @@ textarea.inp{height:150px;padding:14px 16px;resize:none;font-weight:500;font-siz
 .rephint .m{flex:1;min-width:0}
 @media (max-height:640px){.rep .lbl{display:none}.rephint{padding:8px 12px}.rep .seg button{height:28px;font-size:12.5px}.pad{grid-template-rows:repeat(4,minmax(36px,1fr));min-height:150px}.sbody.add{gap:6px}}
 @media (max-height:600px){.pad{grid-template-rows:repeat(4,minmax(33px,1fr));min-height:138px}.pad button{min-height:33px}.sbody.add .btn{height:44px}}
+/* room for the converted amount under the typed amount */
+.amtsec{min-height:17px}
+@media (max-height:780px){.pad{min-height:150px;grid-template-rows:repeat(4,minmax(38px,1fr))}.pad button{min-height:38px}}
+@media (max-height:700px){.pad{min-height:140px;grid-template-rows:repeat(4,minmax(36px,1fr))}.pad button{min-height:36px}}
+@media (max-height:640px){.pad{min-height:146px;grid-template-rows:repeat(4,minmax(33px,1fr))}.pad button{min-height:33px}.amtsec{font-size:12.5px;min-height:15px;margin-top:0}}
+@media (max-height:600px){.pad{min-height:128px;grid-template-rows:repeat(4,minmax(30px,1fr));gap:6px}.pad button{min-height:30px}}
 .chip-d.neu{background:var(--soft);color:var(--mute)}
 .cprev{display:block;width:100%;cursor:pointer;text-align:left}
 .cprev .sh{margin-bottom:12px}
@@ -337,13 +377,15 @@ function dayLabel(iso){const t=todayISO();if(iso===t)return 'Сегодня';if(
 function fmtTs(ts){const d=new Date(ts);return d.getDate()+' '+MON_S[d.getMonth()]+' '+d.getFullYear()+', '+pad(d.getHours())+':'+pad(d.getMinutes());}
 
 /* ================= money ================= */
-const CURS={PLN:['zł',0],RUB:['₽',0],UAH:['₴',0],USD:['$',1],EUR:['€',1],GBP:['£',1],KZT:['₸',0],BYN:['Br',0],CZK:['Kč',0],CHF:['CHF',0]};
+const CURS={PLN:['zł',0],UAH:['грн',0],USD:['$',1],EUR:['€',1]};
+const CONVS=['EUR','USD','UAH'],CONV_NAME={EUR:'Евро',USD:'Доллар США',UAH:'Гривна'};
 const nf0=new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
 const nf2=new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
 let MASK=false;
 const curSym=()=>CURS[D.cur]||CURS.PLN;
 function numStr(c,dec){const a=Math.abs(c)/100;if(dec===2||(dec!==0&&Math.round(Math.abs(c))%100!==0))return nf2.format(a);return nf0.format(a);}
-function money(c,o){o=o||{};const s=curSym();const n=(MASK&&!o.force)?'••••':numStr(c,o.dec);const sign=c<0?'−':(o.plus&&c>0?'+':'');return sign+(s[1]?s[0]+n:n+' '+s[0]);}
+function moneyIn(code,c,o){o=o||{};const s=CURS[code]||CURS.PLN;const n=(MASK&&!o.force)?'••••':numStr(c,o.dec);const sign=c<0?'−':(o.plus&&c>0?'+':'');return sign+(s[1]?s[0]+n:n+' '+s[0]);}
+function money(c,o){return moneyIn(D.cur,c,o);}
 function bigMoney(c){const s=curSym();const a=Math.abs(c);const w=MASK?'••••••':nf0.format(Math.floor(a/100));const d=MASK?'':','+pad(a%100);const sym='<span class="c">'+esc(s[0])+'</span>';return '<div class="bal">'+(c<0?'<span>−</span>':'')+(s[1]?sym:'')+'<span>'+w+'</span><span class="d">'+d+'</span>'+(s[1]?'':sym)+'</div>';}
 function evalExpr(str){
   const s=String(str).replace(/\s+/g,'').replace(/,/g,'.').replace(/×/g,'*').replace(/÷/g,'/').replace(/[−–]/g,'-');
@@ -359,6 +401,20 @@ const centsToStr=c=>String(Math.round(c)/100).replace('.',',');
 
 /* ================= icons ================= */
 const ICONS={
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/>',
+ moon:'<path d="M20 14.2A8.2 8.2 0 0 1 9.8 4 8.2 8.2 0 1 0 20 14.2z"/>',
+ bag:'<path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+ bike:'<circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l3.5-7h5L18 16M9.5 9H8M14.5 9l-3 7"/>',
+ scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.3 8.3L20 20M8.3 15.7L20 4"/>',
+ leaf:'<path d="M5 19c0-9 6-14 15-14 0 9-5 15-14 15"/><path d="M5 19c3-4 6-7 10-9"/>',
+ umbrella:'<path d="M3 12a9 9 0 0 1 18 0H3z"/><path d="M12 12v6.5a2 2 0 0 0 4 0"/>',
+ key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.2 3 3.2 15 0 18M12 3c-3.2 3-3.2 15 0 18"/>',
+ camera:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/>',
+ receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+ shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
+ fuel:'<path d="M5 20V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M4 20h12"/><path d="M7 7h6v4H7zM15 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/>',
+ smile:'<circle cx="12" cy="12" r="9"/><path d="M8 14a5 5 0 0 0 8 0M9 9.5h.01M15 9.5h.01"/>',
  home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
  list:'<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>',
  chart:'<path d="M5 20V11M12 20V4M19 20v-6"/>',
@@ -430,6 +486,8 @@ const ICONS={
 };
 const ico=(n,s)=>{s=s||20;return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[n]||ICONS.tag)+'</svg>';};
 const PALETTE=['#6A4CF5','#3B82F6','#06B6D4','#14B8A6','#22C55E','#84CC16','#F5A524','#FF7A3D','#EF4444','#EC4899','#C026D3','#64748B'];
+const CAT_COLORS=PALETTE.concat(['#A16207']);
+const CAT_ICONS=['food','cart','bag','coffee','shirt','home','key','bolt','drop','wifi','phone','tv','car','fuel','bus','bike','plane','globe','heart','pill','dumbbell','smile','scissors','paw','leaf','umbrella','shield','grad','book','music','game','film','camera','gift','briefcase','coin','card','wallet','bank','trend','receipt','tool','bulb','star','sparkle','tag'];
 
 
 /* ================= data ================= */
@@ -452,9 +510,9 @@ function buildCats(){
 const FREQ={week:'каждую неделю',month:'каждый месяц',year:'каждый год'};
 const REPS={none:'Нет',week:'Неделя',month:'Месяц',year:'Год'};
 const cap1=x=>x.charAt(0).toUpperCase()+x.slice(1);
-const emptyData=()=>({v:2,cur:'PLN',limit:0,cats:buildCats(),tx:[],rec:[]});
+const emptyData=()=>({v:2,cur:'PLN',conv:'UAH',limit:0,cats:buildCats(),tx:[],rec:[]});
 function norm(o){
-  const n={v:2,cur:CURS[o.cur]?o.cur:'PLN',limit:Number.isFinite(o.limit)&&o.limit>0&&o.limit<=1e12?Math.round(o.limit):0};
+  const n={v:2,cur:'PLN',conv:o.conv===''?'':(CONVS.indexOf(o.conv)>=0?o.conv:'UAH'),limit:Number.isFinite(o.limit)&&o.limit>0&&o.limit<=1e12?Math.round(o.limit):0};
   n.cats=(Array.isArray(o.cats)?o.cats:[]).filter(c=>c&&c.id&&c.name&&(c.type==='expense'||c.type==='income')).map(c=>({id:String(c.id),parentId:c.parentId||null,type:c.type,name:String(c.name),icon:c.icon||'tag',color:c.color||PALETTE[0]}));
   n.tx=(Array.isArray(o.tx)?o.tx:[]).filter(t=>t&&(t.type==='expense'||t.type==='income')&&Number.isFinite(t.amount)&&/^\d{4}-\d\d-\d\d$/.test(t.date)).map(t=>Object.assign({id:t.id?String(t.id):uid(),type:t.type,amount:Math.round(t.amount),categoryId:t.categoryId||null,date:t.date,note:String(t.note||''),createdAt:t.createdAt||Date.now(),updatedAt:t.updatedAt||0},t.recId?{recId:String(t.recId)}:{}));
   n.rec=(Array.isArray(o.rec)?o.rec:[]).filter(r=>r&&r.id&&(r.type==='expense'||r.type==='income')&&Number.isFinite(r.amount)&&r.amount>0&&FREQ[r.freq]&&/^\d{4}-\d\d-\d\d$/.test(r.start)).map(r=>({id:String(r.id),type:r.type,amount:Math.round(r.amount),categoryId:r.categoryId||null,note:String(r.note||''),freq:r.freq,start:r.start,day:+r.start.slice(8),n:Math.max(1,r.n|0),createdAt:r.createdAt||Date.now()}));
@@ -462,7 +520,7 @@ function norm(o){
   return n;
 }
 /* v2 and the earlier (v1) format both restore here; v1 keeps only income and expenses */
-function migrate(o){return o&&typeof o==='object'&&(o.v===2||o.v===1)&&Array.isArray(o.tx)&&Array.isArray(o.cats)?norm({cur:o.v===2?o.cur:(o.settings&&o.settings.cur),limit:o.v===2?o.limit:0,cats:o.cats,tx:o.tx,rec:o.v===2?o.rec:[]}):null;}
+function migrate(o){return o&&typeof o==='object'&&(o.v===2||o.v===1)&&Array.isArray(o.tx)&&Array.isArray(o.cats)?norm({conv:o.v===2?o.conv:undefined,limit:o.v===2?o.limit:0,cats:o.cats,tx:o.tx,rec:o.v===2?o.rec:[]}):null;}
 function readKey(k){try{const raw=localStorage.getItem(k);return raw?JSON.parse(raw):null;}catch(e){return null;}}
 function load(){const a=readKey(KEY);if(a){const n=migrate(a);if(n)return n;}const b=readKey(OLD);if(b&&!b.demo){const n=migrate(b);if(n)return n;}return null;}
 function testStore(){try{localStorage.setItem('__t','1');localStorage.removeItem('__t');return true;}catch(e){return false;}}
@@ -556,7 +614,7 @@ const softTile=(icon,s)=>'<span class="tile" style="width:'+(s||40)+'px;height:'
 /* ================= main screen ================= */
 function txRow(t){
   const ci=catInfo(t.categoryId);const sub=t.note?catLabel(t.categoryId):parentLabel(t.categoryId);
-  return '<button class="row" data-a="tx" data-id="'+t.id+'">'+tile(ci,44)+'<div class="m"><div class="t">'+esc(t.note||ci.name)+(t.recId&&RM(t.recId)?'<span class="rpi" title="Повторяется">'+ico('repeat',13)+'</span>':'')+'</div>'+(sub?'<div class="s">'+esc(sub)+'</div>':'')+'</div><div class="r"><span class="amt'+(t.type==='income'?' pos':'')+'">'+money(t.type==='income'?t.amount:-t.amount,{plus:true})+'</span></div></button>';
+  return '<button class="row" data-a="tx" data-id="'+t.id+'">'+tile(ci,44)+'<div class="m"><div class="t">'+esc(t.note||ci.name)+(t.recId&&RM(t.recId)?'<span class="rpi" title="Повторяется">'+ico('repeat',13)+'</span>':'')+'</div>'+(sub?'<div class="s">'+esc(sub)+'</div>':'')+'</div><div class="r"><span class="amt'+(t.type==='income'?' pos':'')+'">'+money(t.type==='income'?t.amount:-t.amount,{plus:true})+'</span>'+(D.conv&&sec(t.amount)?'<span class="amt2">'+sec(t.amount,{abs:true})+'</span>':'')+'</div></button>';
 }
 const pctTxt=p=>p>0&&p<1?'<1%':Math.round(p)+'%';
 function sliceRow(s,total,link){
@@ -580,7 +638,7 @@ function donut(sl,total,label){
     segs+='<circle cx="60" cy="60" r="'+R+'" fill="none" stroke="'+x.color+'" stroke-width="15" stroke-dasharray="'+vis.toFixed(2)+' '+(C-vis).toFixed(2)+'" stroke-dashoffset="'+(-off).toFixed(2)+'" transform="rotate(-90 60 60)"'+(x.deep?' data-a="cdrill" data-id="'+x.id+'" style="cursor:pointer"':'')+'><title>'+esc(x.name)+'</title></circle>';
     off+=len;
   });
-  return '<div class="donut"><svg viewBox="0 0 120 120" role="img" aria-label="Диаграмма по категориям"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="var(--soft)" stroke-width="15"/>'+segs+'</svg><div class="dc"><small>'+esc(label)+'</small><b>'+money(total,{dec:0})+'</b></div></div>';
+  return '<div class="donut"><svg viewBox="0 0 120 120" role="img" aria-label="Диаграмма по категориям"><circle cx="60" cy="60" r="'+R+'" fill="none" stroke="var(--soft)" stroke-width="15"/>'+segs+'</svg><div class="dc"><small>'+esc(label)+'</small><b>'+money(total,{dec:0})+'</b>'+secLine(total,{abs:true})+'</div></div>';
 }
 /* full-screen breakdown: «Откуда деньги» (income) / «Куда уходят деньги» (expenses) */
 function pageBreak(){
@@ -601,7 +659,7 @@ function pageBreak(){
     return h;
   }
   const leaf=node&&!kidsOf(node).length;
-  if(leaf)h+='<div class="bkhero"><span class="lbl">'+esc(CM.get(node).name)+'</span>'+bigMoney(total)+'</div>';
+  if(leaf)h+='<div class="bkhero"><span class="lbl">'+esc(CM.get(node).name)+'</span>'+bigMoney(total)+secLine(total,{abs:true})+'</div>';
   else h+=donut(sl,total,node?CM.get(node).name:'Всего');
   let dl='',dc='neu';
   if(prev>0){const d=(total-prev)/prev,pc=Math.round(Math.abs(d)*100);dl=pc===0?'Как в прошлом месяце':(d>0?'▲ ':'▼ ')+pc+'% к прошлому месяцу';dc=pc===0?'neu':((inc?d>0:d<0)?'':(inc?'warn':'neg'));}
@@ -649,10 +707,10 @@ function opsSection(list){
 function viewMain(){
   const r=monthRange(UI.off);const list=D.tx.filter(t=>t.date>=r.from&&t.date<=r.to);
   const inc=sum(list,'income'),exp=sum(list,'expense');
-  let h='<div class="pg col" style="gap:18px"><header class="hd"><div class="mnav"><button class="ib sm" data-a="mon" data-d="-1" aria-label="Предыдущий месяц">'+ico('back',18)+'</button><b class="mlab">'+r.label+'</b><button class="ib sm" data-a="mon" data-d="1" aria-label="Следующий месяц"'+(UI.off>=0?' disabled style="opacity:.3"':'')+'>'+ico('chev',18)+'</button></div><button class="ib" data-a="menu" aria-label="Меню">'+ico('dots',20)+'</button></header>';
+  let h='<div class="pg col" style="gap:18px"><header class="hd"><div class="mnav"><button class="ib sm" data-a="mon" data-d="-1" aria-label="Предыдущий месяц">'+ico('back',18)+'</button><b class="mlab">'+r.label+'</b><button class="ib sm" data-a="mon" data-d="1" aria-label="Следующий месяц"'+(UI.off>=0?' disabled style="opacity:.3"':'')+'>'+ico('chev',18)+'</button></div><div class="hr"><button class="ib" data-a="theme" aria-label="'+(themeNow()==='dark'?'Светлая тема':'Тёмная тема')+'">'+ico(themeNow()==='dark'?'sun':'moon',20)+'</button><button class="ib" data-a="menu" aria-label="Меню">'+ico('dots',20)+'</button></div></header>';
   if(!STORE_OK)h+='<div class="card" style="background:var(--warn-bg);color:var(--warn);font-weight:700">Браузер не даёт сохранять данные: после закрытия страницы они пропадут. Сохраняйте копию через меню ⋯</div>';
-  h+='<div class="balblk"><span class="lbl">Баланс</span>'+bigMoney(balance())+'</div>';
-  h+='<div class="duo"><button class="card dark fc" data-a="filt" data-v="income"><span class="fi">'+ico('arrowdown',18)+'</span><span class="lbl w">Доходы</span><b class="fv">'+money(inc,{dec:0})+'</b></button><button class="card acc fc" data-a="filt" data-v="expense"><span class="fi">'+ico('arrowup',18)+'</span><span class="lbl w">Расходы</span><b class="fv">'+money(exp,{dec:0})+'</b></button></div>';
+  h+='<div class="balblk"><span class="lbl">Баланс</span>'+bigMoney(balance())+secLine(balance())+'</div>';
+  h+='<div class="duo"><button class="card dark fc" data-a="filt" data-v="income"><span class="fi">'+ico('arrowdown',18)+'</span><span class="lbl w">Доходы</span><b class="fv">'+money(inc,{dec:0})+'</b>'+secLine(inc,{abs:true})+'</button><button class="card acc fc" data-a="filt" data-v="expense"><span class="fi">'+ico('arrowup',18)+'</span><span class="lbl w">Расходы</span><b class="fv">'+money(exp,{dec:0})+'</b>'+secLine(exp,{abs:true})+'</button></div>';
   h+=limitWidget(exp);
   if(!D.tx.length)h+='<div class="card soft" style="text-align:center;display:flex;flex-direction:column;gap:6px"><b style="font-size:16px">Начните с первой операции</b><span class="hint">Нажмите «Добавить» внизу. Категории и подкатегории любой глубины настраиваются в меню ⋯</span></div>';
   else h+=catPreview(list)+opsSection(list);
@@ -757,11 +815,29 @@ const mrow=(icon,label,act,right,cls)=>'<button class="mrow'+(cls?' '+cls:'')+'"
 SH.menu=()=>shHead('Меню')+'<div class="pg sbody"><div class="list">'
   +mrow('layers','Категории','m-cats')
   +mrow('repeat','Постоянные операции','m-recs',D.rec.length?'<span class="mut" style="font-weight:700">'+D.rec.length+'</span>':'')
-  +mrow('coin','Валюта','m-cur','<span class="mut" style="font-weight:700">'+esc(curSym()[0])+'</span>')
+  +mrow('coin','Валюта и курс','m-cur','<span class="mut" style="font-weight:700">'+esc(curSym()[0]+(D.conv?' + '+CURS[D.conv][0]:''))+'</span>')
   +mrow('save','Сохранить копию в файл','m-backup')
   +mrow('arrowup','Восстановить из копии','m-restore')
   +mrow('trash','Удалить все данные','m-wipe','<span></span>','danger')
   +'</div><div class="hint">Данные хранятся только в браузере этого устройства. Сохраняйте копию, чтобы не потерять их и перенести на другое устройство.</div></div>';
+
+/* ---- currency ---- */
+SH.cur=d=>{
+  const cv=D.conv,rate=rateOf(cv);
+  let h=shHead('Валюта и курс')+'<div class="pg sbody">';
+  h+='<div class="hint">Основная валюта — злотый (zł), её изменить нельзя. Рядом с суммами можно показывать пересчёт в другую валюту.</div>';
+  h+='<div class="list">'+['EUR','USD','UAH',''].map(c=>{const on=cv===c;return '<button class="mrow" data-a="cv-pick" data-v="'+c+'">'+(c?'<span class="tile" style="background:var(--soft);color:var(--accent);font-weight:800;font-size:'+(CURS[c][0].length>1?13:18)+'px">'+esc(CURS[c][0])+'</span>':softTile('eyeoff',40))+'<span class="t">'+(c?CONV_NAME[c]+' · '+c:'Не показывать')+'</span><span class="radio'+(on?' on':'')+'">'+(on?ico('check',14):'')+'</span></button>';}).join('')+'</div>';
+  if(cv){
+    const toPln=cv!=='UAH',sym=CURS[cv][0];
+    const shown=rate?(toPln?'1 '+sym+' = '+fx4(1/rate)+' zł':'1 zł = '+fx4(rate)+' '+sym):'Курс не загружен';
+    const src=rate&&FX?(FX.src===MANUAL?'Введён вручную':FX.src+' · '+fmtD(FX.date,{short:true})+' · средний курс'):'';
+    h+='<div class="ratec"><span class="lbl">Курс</span><span class="rv">'+shown+'</span>'+(src?'<span class="hint">'+esc(src)+'</span>':'')+(FXST.err?'<span class="rerr">'+esc(FXST.err)+'</span>':'');
+    if(d.edit)h+='<input id="cvv" class="inp" data-bind="rv" inputmode="decimal" autocomplete="off" placeholder="'+(toPln?'Сколько zł за 1 '+esc(sym):'Сколько '+esc(sym)+' за 1 zł')+'" value="'+esc(d.rv||'')+'"><div class="ra"><button class="btn sm" data-a="cv-msave">Сохранить</button><button class="btn ghost sm" data-a="cv-mcancel">Отмена</button></div>';
+    else h+='<div class="ra"><button class="btn soft sm" data-a="cv-refresh"'+(FXST.busy?' disabled':'')+'><span class="'+(FXST.busy?'spin':'')+'" style="display:grid">'+ico('repeat',16)+'</span>'+(FXST.busy?'Загрузка…':'Обновить курс')+'</button><button class="btn ghost sm" data-a="cv-manual">Ввести вручную</button></div>';
+    h+='</div><div class="hint">Курс подтягивается из ПриватБанка (если он недоступен — из НБУ) раз в несколько часов. Это средний курс покупки и продажи, суммы со знаком «≈» ориентировочные.</div>';
+  }
+  return h+'</div>';
+};
 
 /* ---- operation detail ---- */
 SH.txd=d=>{
@@ -771,7 +847,7 @@ SH.txd=d=>{
   if(t.updatedAt)rows+=kv('Изменено',fmtTs(t.updatedAt));
   if(t.note)rows+=kv('Заметка',esc(t.note));
   const rl=t.recId&&RM(t.recId);if(rl)rows+=kv('Повтор',esc(cap1(FREQ[rl.freq])));
-  return shHead(t.type==='income'?'Доход':'Расход')+'<div class="pg sbody"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">'+tile(ci,56)+'<div class="amtd'+(t.type==='income'?' pos':'')+'" style="font-size:38px">'+money(t.type==='income'?t.amount:-t.amount,{plus:true})+'</div></div><div>'+rows+'</div>'+(rl?'<button class="btn soft" data-a="rec-open" data-id="'+rl.id+'">'+ico('repeat',18)+'Управлять повтором</button>':'')+'<div class="acts" style="grid-template-columns:1fr 1fr"><button class="btn ghost" data-a="tx-edit">'+ico('edit',18)+'Изменить</button><button class="btn danger" data-a="tx-del">'+ico('trash',18)+'Удалить</button></div></div>';
+  return shHead(t.type==='income'?'Доход':'Расход')+'<div class="pg sbody"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">'+tile(ci,56)+'<div class="amtd'+(t.type==='income'?' pos':'')+'" style="font-size:38px">'+money(t.type==='income'?t.amount:-t.amount,{plus:true})+'</div>'+secLine(t.type==='income'?t.amount:-t.amount)+'</div><div>'+rows+'</div>'+(rl?'<button class="btn soft" data-a="rec-open" data-id="'+rl.id+'">'+ico('repeat',18)+'Управлять повтором</button>':'')+'<div class="acts" style="grid-template-columns:1fr 1fr"><button class="btn ghost" data-a="tx-edit">'+ico('edit',18)+'Изменить</button><button class="btn danger" data-a="tx-del">'+ico('trash',18)+'Удалить</button></div></div>';
 };
 
 /* ---- add / edit ---- */
@@ -784,6 +860,7 @@ function updateAmt(s){
   const m=amtMarkup(s.data),a=$('#amtd',s.el),b=$('#savebtn',s.el);
   if(a){a.innerHTML=m.html;a.className='amtd '+m.cls+(s.data.type==='income'?' pos':'');}
   if(b)b.classList.toggle('dis',!(m.val>0));
+  const sc=$('#amtsec',s.el);if(sc)sc.textContent=m.val>0?sec(m.val):'';
 }
 const dateLabel=iso=>iso===todayISO()?'Сегодня':iso===addDays(todayISO(),-1)?'Вчера':fmtD(iso,{short:true});
 SH.add=d=>{
@@ -791,7 +868,7 @@ SH.add=d=>{
   const isRec=d.mode==='rec',own=isEdit&&d.recId&&RM(d.recId);
   let h=shHead(isEdit?'Изменить операцию':isRec?'Постоянная операция':'Новая операция')+'<div class="pg sbody add" style="flex:1">';
   h+='<div class="seg">'+[['income','Доход'],['expense','Расход']].map(k=>'<button class="'+(d.type===k[0]?'on':'')+'" data-a="add-type" data-v="'+k[0]+'">'+k[1]+'</button>').join('')+'</div>';
-  h+='<div class="amtwrap"><div id="amtd" class="amtd '+m.cls+(d.type==='income'?' pos':'')+'">'+m.html+'</div></div>';
+  h+='<div class="amtwrap"><div id="amtd" class="amtd '+m.cls+(d.type==='income'?' pos':'')+'">'+m.html+'</div>'+(D.conv?'<div id="amtsec" class="sec amtsec">'+(m.val>0?sec(m.val):'')+'</div>':'')+'</div>';
   const rc=recentCats(d.type);
   if(rc.length)h+='<div class="hs">'+rc.map(id=>{const c=catInfo(id);return '<button class="chip'+(d.cat===id?' on':'')+'" data-a="sf" data-f="cat" data-v="'+id+'"><span style="color:'+c.color+'">'+ico(c.icon,16)+'</span>'+esc(c.name)+'</button>';}).join('')+'</div>';
   h+='<div class="two"><button class="pick'+(ci?'':' ph')+'" data-a="pick-cat">'+(ci?tile(ci,36)+'<div class="m"><div class="t">'+esc(ci.name)+'</div>'+(parentLabel(d.cat)?'<div class="s">'+esc(parentLabel(d.cat))+'</div>':'')+'</div>':softTile('layers',36)+'<div class="m"><div class="t">Категория</div></div>')+'</button>'
@@ -855,7 +932,7 @@ SH.rec=d=>{
   const r=RM(d.id);if(!r)return null;const ci=catInfo(r.categoryId),cnt=D.tx.reduce((n,t)=>n+(t.recId===r.id?1:0),0);
   let rows=kvRow('Категория',esc(catLabel(r.categoryId)))+kvRow('Повтор',esc(cap1(FREQ[r.freq])))+kvRow('Следующая',esc(fmtD(recDate(r,r.n),{wd:true,year:true})))+kvRow('Начало',esc(fmtD(r.start,{year:true})))+kvRow('Создано операций',cnt);
   if(r.note)rows+=kvRow('Заметка',esc(r.note));
-  return shHead(r.type==='income'?'Постоянный доход':'Постоянный расход')+'<div class="pg sbody"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">'+tile(ci,56)+'<div class="amtd'+(r.type==='income'?' pos':'')+'" style="font-size:38px">'+money(r.type==='income'?r.amount:-r.amount,{plus:true})+'</div></div><div>'+rows+'</div>'
+  return shHead(r.type==='income'?'Постоянный доход':'Постоянный расход')+'<div class="pg sbody"><div style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">'+tile(ci,56)+'<div class="amtd'+(r.type==='income'?' pos':'')+'" style="font-size:38px">'+money(r.type==='income'?r.amount:-r.amount,{plus:true})+'</div>'+secLine(r.type==='income'?r.amount:-r.amount)+'</div><div>'+rows+'</div>'
     +'<div class="hint">Изменения и остановка касаются только будущих операций. Уже созданные остаются, их можно править или удалять по одной.</div>'
     +'<div class="acts" style="grid-template-columns:1fr 1fr"><button class="btn ghost" data-a="rec-edit">'+ico('edit',18)+'Изменить</button><button class="btn ghost" data-a="rec-stop">Остановить</button></div>'
     +'<button class="btn danger" data-a="rec-del">'+ico('trash',18)+'Удалить с операциями ('+cnt+')</button></div>';
@@ -903,14 +980,25 @@ function openPicker(o){
 /* ---- category editor (rename / add subcategories / delete; new categories are added with the quick bar) ---- */
 SH.catedit=d=>{
   if(!CM.has(d.id))return null;const c=CM.get(d.id),kids=kidsOf(d.id).length;
+  const lc=d.color.toLowerCase(),stdc=CAT_COLORS.some(x=>x.toLowerCase()===lc);
   let h=shHead('Категория')+'<div class="pg sbody">';
   if(c.parentId)h+='<div class="hint">Внутри: '+esc(parentLabel(d.id))+'</div>';
-  h+='<div style="display:flex;gap:12px;align-items:center">'+tile(c,56)+'<input id="cname" class="inp" data-bind="name" placeholder="Название" value="'+esc(d.name)+'" maxlength="40" autocomplete="off"></div>';
-  h+='<button class="btn" data-a="cat-save">Сохранить</button>';
+  h+='<div class="cename"><span id="cepv">'+tile({icon:d.icon,color:d.color},56)+'</span><input id="cname" class="inp" data-bind="name" placeholder="Название" value="'+esc(d.name)+'" maxlength="40" autocomplete="off"></div>';
+  h+='<div class="pkl">Иконка</div><div class="igrid" style="--cc:'+esc(d.color)+'">'+CAT_ICONS.map(n=>'<button class="'+(d.icon===n?'on':'')+'" data-a="ce-ico" data-v="'+n+'" aria-label="Иконка">'+ico(n,22)+'</button>').join('')+'</div>';
+  h+='<div class="pkl">Цвет</div><div class="cgrid">'+CAT_COLORS.map(col=>'<button class="'+(lc===col.toLowerCase()?'on':'')+'" style="background:'+col+'" data-a="ce-col" data-v="'+col+'" aria-label="Цвет"></button>').join('')
+    +'<label class="cust'+(stdc?'':' on')+'" style="'+(stdc?'':'background:'+esc(d.color))+'" aria-label="Свой цвет">'+ico('plus',16)+'<input type="color" data-bind="color" data-live="ce" value="'+esc(d.color)+'"></label></div>';
+  h+='<div class="stk"><button class="btn" data-a="cat-save">Сохранить</button></div>';
   h+='<button class="btn soft" data-a="cat-sub">'+ico('plus',18)+'Добавить подкатегории'+(kids?' ('+kids+')':'')+'</button>';
   h+='<button class="btn danger" data-a="cat-del">'+ico('trash',18)+'Удалить</button>';
   return h+'</div>';
 };
+function cePaint(s){
+  const d=s.data,e=s.el,lc=d.color.toLowerCase();
+  const pv=$('#cepv',e);if(pv)pv.innerHTML=tile({icon:d.icon,color:d.color},56);
+  const g=$('.igrid',e);if(g){g.style.setProperty('--cc',d.color);g.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===d.icon));}
+  e.querySelectorAll('.cgrid button').forEach(b=>b.classList.toggle('on',b.dataset.v.toLowerCase()===lc));
+  const cu=$('.cgrid .cust',e);if(cu){const std=CAT_COLORS.some(x=>x.toLowerCase()===lc);cu.classList.toggle('on',!std);cu.style.background=std?'':d.color;}
+}
 
 /* ---- monthly limit ---- */
 SH.limit=d=>{
@@ -942,7 +1030,53 @@ async function saveFile(name,text){
   catch(e){if(e&&e.code==='declined')return;}
   copyText(text,'Скопируйте и сохраните в заметках');
 }
-const CUR_ORDER=['PLN','EUR','USD','RUB','UAH'];
+/* ================= theme ================= */
+const THKEY='mywallet.theme';
+let THEME='';try{THEME=localStorage.getItem(THKEY)||'';}catch(e){}
+if(THEME!=='light'&&THEME!=='dark')THEME='';
+const sysDark=()=>{try{return !!(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);}catch(e){return false;}};
+function themeNow(){const a=document.documentElement.getAttribute('data-theme');return a==='dark'||a==='light'?a:(sysDark()?'dark':'light');}
+function themeApply(){if(THEME)document.documentElement.setAttribute('data-theme',THEME);const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',themeNow()==='dark'?'#0e0e15':'#ffffff');}
+function themeToggle(){THEME=themeNow()==='dark'?'light':'dark';try{localStorage.setItem(THKEY,THEME);}catch(e){}themeApply();render();}
+try{const mq=matchMedia('(prefers-color-scheme: dark)');const f=()=>{if(!THEME){themeApply();render();}};mq.addEventListener?mq.addEventListener('change',f):mq.addListener&&mq.addListener(f);}catch(e){}
+
+/* ================= conversion: second currency next to złoty (PrivatBank rate) ================= */
+const FXKEY='mywallet.fx',FX_TTL=6*3600*1000,MANUAL='вручную';
+let FX=readKey(FXKEY);if(!(FX&&FX.r&&typeof FX.r==='object'))FX=null;
+const FXST={busy:false,err:''};
+const fxSave=()=>{try{localStorage.setItem(FXKEY,JSON.stringify(FX));}catch(e){}};
+const rateOf=c=>{const r=FX&&c?+FX.r[c]:0;return r>0&&isFinite(r)?r:0;};
+function sec(c,o){o=o||{};const r=rateOf(D.conv);if(!r||MASK)return '';const v=Math.round((o.abs?Math.abs(c):c)*r);return '≈ '+moneyIn(D.conv,v,{dec:Math.abs(v)<10000?undefined:0});}
+const secLine=(c,o)=>{const t=sec(c,o);return t?'<span class="sec">'+t+'</span>':'';};
+async function pbRates(){
+  for(let i=0;i<4;i++){
+    const d=addDays(todayISO(),-i),p=d.split('-');
+    const res=await fetch('https://api.privatbank.ua/p24api/exchange_rates?json&date='+p[2]+'.'+p[1]+'.'+p[0],{cache:'no-store'});
+    if(!res.ok)continue;const j=await res.json(),L=j&&j.exchangeRate;if(!Array.isArray(L))continue;
+    const get=c=>{const x=L.find(y=>y.currency===c);if(!x)return 0;const a=+x.purchaseRate,b=+x.saleRate;if(a>0&&b>0)return (a+b)/2;const n=+x.saleRateNB||+x.purchaseRateNB;return n>0?n:0;};
+    const pl=get('PLN'),us=get('USD'),eu=get('EUR');
+    if(pl&&us&&eu)return {date:d,src:'ПриватБанк',pl,us,eu};
+  }
+  throw new Error('pb');
+}
+async function nbuRates(){
+  const res=await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json',{cache:'no-store'});
+  if(!res.ok)throw new Error('nbu');const L=await res.json();
+  const get=c=>{const x=Array.isArray(L)&&L.find(y=>y.cc===c);return x&&+x.rate>0?+x.rate:0;};
+  const pl=get('PLN'),us=get('USD'),eu=get('EUR');if(!(pl&&us&&eu))throw new Error('nbu');
+  return {date:todayISO(),src:'НБУ',pl,us,eu};
+}
+async function fetchRates(){
+  if(FXST.busy||typeof fetch!=='function')return;FXST.busy=true;FXST.err='';render();
+  let r=null;
+  try{r=await pbRates();}catch(e){try{r=await nbuRates();}catch(e2){}}
+  FXST.busy=false;
+  if(r){FX={ts:Date.now(),date:r.date,src:r.src,r:{UAH:r.pl,EUR:r.pl/r.eu,USD:r.pl/r.us}};fxSave();}
+  else FXST.err='Не удалось загрузить курс. Проверьте интернет или введите курс вручную.';
+  render();
+}
+function maybeFetchRates(force){if(!D||!D.conv||FXST.busy)return;if(!force&&FX&&(FX.src===MANUAL||Date.now()-FX.ts<FX_TTL))return;fetchRates();}
+const fx4=n=>n.toFixed(4).replace('.',',');
 const ACT={
   add(){openAdd();},
   mon(el){UI.off=Math.min(0,UI.off+Number(el.dataset.d));UI.cnode=null;render();},
@@ -979,13 +1113,15 @@ const ACT={
   pop(){UI.page=null;render();},
   ctype(el){UI.cType=el.dataset.v;if(UI.qa)UI.qa.parent=null;render();},
   cexp(el){const id=el.dataset.id;if(UI.cexp.has(id))UI.cexp.delete(id);else UI.cexp.add(id);render();},
-  catedit(el){const c=CM.get(el.dataset.id);if(c)openSheet('catedit',{id:c.id,type:c.type,parent:c.parentId||null,name:c.name});},
+  catedit(el){const c=CM.get(el.dataset.id);if(c)openSheet('catedit',{id:c.id,type:c.type,parent:c.parentId||null,name:c.name,icon:c.icon,color:c.color});},
+  'ce-ico'(el){const s=sheetOf(el);s.data.icon=el.dataset.v;cePaint(s);},
+  'ce-col'(el){const s=sheetOf(el);s.data.color=el.dataset.v;cePaint(s);},
   catadd(el){const id=el.dataset.id||null;if(id)UI.cexp.add(id);const was=!!UI.qa;UI.qa={parent:id};render();if(!was)qmsg('');qaFocus();},
   'qa-add'(){qaSubmit();},
   'qa-close'(){UI.qa=null;render();},
   'cat-save'(el){
     const s=sheetOf(el),d=s.data;const nm=d.name.trim();if(!nm){toast('Введите название');return;}
-    CM.get(d.id).name=nm;commit();closeSheetObj(s);toast('Сохранено');
+    const cc=CM.get(d.id);cc.name=nm;cc.icon=ICONS[d.icon]?d.icon:cc.icon;cc.color=/^#[0-9a-fA-F]{6}$/.test(d.color)?d.color:cc.color;commit();closeSheetObj(s);toast('Сохранено');
   },
   'cat-sub'(el){const s=sheetOf(el);const id=s.data.id;closeSheetObj(s,true);UI.cexp.add(id);UI.qa={parent:id};render();qmsg('');qaFocus();},
   limit(){openLimit();},
@@ -1002,7 +1138,19 @@ const ACT={
     confirmBox({title:'Удалить «'+c.name+'»?',text:(kids?'Вместе с подкатегориями ('+kids+'). ':'')+(n?'Операции ('+n+') останутся и перейдут в «'+dest+'».':'Операций в ней нет.'),ok:'Удалить',danger:true,cb:()=>withUndo('Категория удалена',()=>deleteCat(id))});
   },
   /* menu */
-  'm-cur'(){D.cur=CUR_ORDER[(CUR_ORDER.indexOf(D.cur)+1)%CUR_ORDER.length];save();render();},
+  theme(){themeToggle();},
+  'm-cur'(el){const s=sheetOf(el);closeSheetObj(s,true);openSheet('cur',{edit:false,rv:''});maybeFetchRates();},
+  'cv-pick'(el){const v=el.dataset.v||'';D.conv=v;save();FXST.err='';render();if(v)maybeFetchRates(!rateOf(v));},
+  'cv-refresh'(){fetchRates();},
+  'cv-manual'(el){const s=sheetOf(el);s.data.edit=true;s.data.rv='';paintSheet(s);const i=$('#cvv',s.el);if(i)i.focus();},
+  'cv-mcancel'(el){const s=sheetOf(el);s.data.edit=false;paintSheet(s);},
+  'cv-msave'(el){
+    const s=sheetOf(el),v=parseFloat(String(s.data.rv||'').replace(/\s/g,'').replace(',','.'));
+    if(!(v>0&&v<1e6)){toast('Введите курс числом');return;}
+    const r=D.conv==='UAH'?v:1/v;
+    FX={ts:Date.now(),date:todayISO(),src:MANUAL,r:Object.assign({},FX&&FX.r,{[D.conv]:r})};fxSave();FXST.err='';
+    s.data.edit=false;render();toast('Курс сохранён');
+  },
   'm-backup'(){saveFile('moi-koshelek-'+todayISO()+'.json',JSON.stringify(D));},
   'm-restore'(el){const s=sheetOf(el);closeSheetObj(s,true);openSheet('restore',{text:'',err:''});},
   'restore-go'(el){
@@ -1029,6 +1177,7 @@ appEl.addEventListener('input',e=>{
   if(el.id==='qin'){qmsg('');return;}
   if(!ds.bind)return;
   const s=sheetOf(el);if(!s)return;setPath(s.data,ds.bind,el.value);
+  if(ds.live==='ce'){cePaint(s);return;}
   if(ds.live==='cp'){const l=$('#cplist',s.el);if(l)l.innerHTML=catList(s.data);const b=$('.cpplus',s.el);if(b)b.classList.toggle('on',!!(s.data.q||'').trim());}
 });
 appEl.addEventListener('change',e=>{
@@ -1042,6 +1191,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&ae){
     if(ae.id==='qin'&&!s){qaSubmit();e.preventDefault();return;}
     if(ae.id==='cpq'&&s&&s.kind==='catpick'){ACT['cp-go'](s.el);e.preventDefault();return;}
+    if(ae.id==='cvv'&&s&&s.kind==='cur'){ACT['cv-msave'](s.el);e.preventDefault();return;}
     if(ae.id==='limv'&&s&&s.kind==='limit'){ACT['limit-save'](s.el);e.preventDefault();return;}
   }
   if(!s||s.kind!=='add')return;
@@ -1053,17 +1203,18 @@ document.addEventListener('keydown',e=>{
   else if(k==='Enter'){saveAdd(s);e.preventDefault();}
 });
 function dayTick(){const t=todayISO();if(t===lastDay)return;lastDay=t;if(applyRecurring())commit();else render();}
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)dayTick();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){dayTick();maybeFetchRates();}});
 setInterval(dayTick,60000);
 
 /* ================= boot ================= */
 STORE_OK=testStore();
 D=load();const fresh=!D;if(fresh)D=emptyData();
-applyRecurring();rebuild();
+themeApply();applyRecurring();rebuild();
 $('#fab').innerHTML=ico('plus',22)+'<span>Добавить</span>';
 if(STORE_OK)flush();
 render();
-window.__app={get D(){return D;},UI,ACT,render,commit,recDate,applyRecurring,money,balance,slices,monthRange,migrate,fresh};
+maybeFetchRates();
+window.__app={get D(){return D;},get FX(){return FX;},set FX(v){FX=v;},themeNow,sec,fetchRates,UI,ACT,render,commit,recDate,applyRecurring,money,balance,slices,monthRange,migrate,fresh};
 })();
 </script>
 
