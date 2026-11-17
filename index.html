@@ -718,6 +718,7 @@ function viewMain(){
   const inc=sum(list,'income'),exp=sum(list,'expense');
   let h='<div class="pg col" style="gap:18px"><header class="hd"><div class="mnav"><button class="ib sm" data-a="mon" data-d="-1" aria-label="Предыдущий месяц">'+ico('back',18)+'</button><b class="mlab">'+r.label+'</b><button class="ib sm" data-a="mon" data-d="1" aria-label="Следующий месяц"'+(UI.off>=0?' disabled style="opacity:.3"':'')+'>'+ico('chev',18)+'</button></div><div class="hr"><button class="ib" data-a="theme" aria-label="'+(themeNow()==='dark'?'Светлая тема':'Тёмная тема')+'">'+ico(themeNow()==='dark'?'sun':'moon',20)+'</button><button class="ib" data-a="menu" aria-label="Меню">'+ico('dots',20)+'</button></div></header>';
   if(!STORE_OK)h+='<div class="card" style="background:var(--warn-bg);color:var(--warn);font-weight:700">Браузер не даёт сохранять данные: после закрытия страницы они пропадут. Сохраняйте копию через меню ⋯</div>';
+  if(fbReady&&SY.state==='out'&&!SYHIDE)h+='<div class="card soft" style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;gap:12px;align-items:center">'+softTile('cloud',40)+'<div style="min-width:0"><b style="font-size:15px">Войдите, чтобы данные хранились в облаке</b><div class="hint" style="margin:2px 0 0">Сейчас они только в этом браузере. С входом через Google их видно на всех устройствах.</div></div></div><div class="acts" style="grid-template-columns:1fr auto"><button class="btn sm" data-a="sy-login">'+ico('user',16)+'Войти через Google</button><button class="btn ghost sm" data-a="sy-hide">Позже</button></div></div>';
   h+='<div class="balblk"><span class="lbl">Баланс</span>'+'<div class="balrow">'+bigMoney(balance())+secLine(balance())+'<button class="cvchip" data-a="cv-open" aria-label="Валюта пересчёта">'+(D.conv||'Валюта')+ico('down',14)+'</button></div></div>';
   h+='<div class="duo"><button class="card dark fc" data-a="filt" data-v="income"><span class="fi">'+ico('arrowdown',18)+'</span><span class="lbl w">Доходы</span><span class="fvr"><b class="fv">'+money(inc,{dec:0})+'</b>'+secLine(inc,{abs:true})+'</span></button><button class="card acc fc" data-a="filt" data-v="expense"><span class="fi">'+ico('arrowup',18)+'</span><span class="lbl w">Расходы</span><span class="fvr"><b class="fv">'+money(exp,{dec:0})+'</b>'+secLine(exp,{abs:true})+'</span></button></div>';
   h+=limitWidget(exp);
@@ -825,11 +826,11 @@ SH.menu=()=>shHead('Меню')+'<div class="pg sbody"><div class="list">'
   +mrow('layers','Категории','m-cats')
   +mrow('repeat','Постоянные операции','m-recs',D.rec.length?'<span class="mut" style="font-weight:700">'+D.rec.length+'</span>':'')
   +mrow('coin','Валюта и курс','m-cur','<span class="mut" style="font-weight:700">'+esc(curSym()[0]+(D.conv?' + '+CURS[D.conv][0]:''))+'</span>')
-  +mrow('cloud','Облако и синхронизация','m-sync',SY.state==='in'?'<span class="mut" style="font-weight:700">'+(SY.busy?'…':SY.err?'Ошибка':'Вкл')+'</span>':'')
+  +mrow('cloud','Облако и синхронизация','m-sync',SY.state==='in'?'<span class="mut" style="font-weight:700">'+(SY.busy?'…':SY.err?'Ошибка':'Вкл')+'</span>':(fbReady?'<span style="font-weight:800;color:var(--accent)">Войти</span>':''))
   +mrow('save','Сохранить копию в файл','m-backup')
   +mrow('arrowup','Восстановить из копии','m-restore')
   +mrow('trash','Удалить все данные','m-wipe','<span></span>','danger')
-  +'</div><div class="hint">'+(SY.state==='in'?'Данные синхронизируются с вашим аккаунтом Google. Копию в файл всё равно полезно иногда сохранять.':'Данные хранятся в браузере этого устройства. Включите облако или сохраняйте копию, чтобы не потерять их и перенести на другое устройство.')+'</div></div>';
+  +'</div><div class="hint">'+(SY.state==='in'?'Данные синхронизируются с вашим аккаунтом Google. Копию в файл всё равно полезно иногда сохранять.':''+(fbReady?'Пока вы не вошли, данные хранятся только в браузере этого устройства. Откройте «Облако и синхронизация» и войдите через Google — тогда они сохранятся в облаке и появятся на других устройствах.':'Данные хранятся в браузере этого устройства. Сохраняйте копию, чтобы не потерять их и перенести на другое устройство.')+'')+'</div></div>';
 
 /* ---- currency ---- */
 SH.cur=d=>{
@@ -1100,6 +1101,7 @@ const fx4=n=>n.toFixed(4).replace('.',',');
 const SYKEY='mywallet.sync',SYBASE='mywallet.syncbase',FB_VER='10.12.5';
 const FBCFG=window.FIREBASE_CONFIG;
 const fbReady=!!(FBCFG&&typeof FBCFG==='object'&&FBCFG.apiKey&&FBCFG.projectId&&!/^(PASTE|YOUR|XXX)/i.test(String(FBCFG.apiKey)));
+let SYHIDE=false;try{SYHIDE=localStorage.getItem('mywallet.syhide')==='1';}catch(e){}
 let SM=readKey(SYKEY);if(!SM||typeof SM!=='object')SM={};
 const SY={state:fbReady?'idle':'noconfig',user:null,busy:false,err:'',last:0};
 let FBM=null,FBP=null,FBAUTH=null,FBDB=null,FBUNSUB=null,syT=null,syQ=false;
@@ -1340,6 +1342,7 @@ const ACT={
   },
   'm-sync'(el){const s=sheetOf(el);closeSheetObj(s,true);openSheet('sync',{});if(fbReady)syInit();},
   'sy-login'(){syLogin();},
+  'sy-hide'(){SYHIDE=true;try{localStorage.setItem('mywallet.syhide','1');}catch(e){}render();},
   'sy-now'(){syncNow();},
   'sy-out'(el){const s=sheetOf(el);closeSheetObj(s,true);confirmBox({title:'Выйти из облака?',text:'Данные останутся на этом устройстве и в облаке, но перестанут синхронизироваться. Войти снова можно в любой момент.',ok:'Выйти',cb:()=>{syLogout();toast('Вы вышли из облака');}});},
   'sy-retry'(){FBP=null;SY.state='idle';SY.err='';syInit();},
@@ -1406,7 +1409,7 @@ $('#fab').innerHTML=ico('plus',22)+'<span>Добавить</span>';
 if(STORE_OK)flush();
 render();
 maybeFetchRates();
-if(fbReady&&SM.uid)syInit();
+if(fbReady)syInit();
 window.__app={SY,get SM(){return SM;},syncNow,syMerge,syRemap,get D(){return D;},get FX(){return FX;},set FX(v){FX=v;},themeNow,sec,fetchRates,UI,ACT,render,commit,recDate,applyRecurring,money,balance,slices,monthRange,migrate,fresh};
 })();
 </script>
