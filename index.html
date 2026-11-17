@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script>try{var t=localStorage.getItem("mywallet.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><script src="firebase-config.js"></script></head><body>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script>try{var t=localStorage.getItem("mywallet.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><script src="firebase-config.js?v=3"></script></head><body>
 <title>Мой кошелёк</title>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
@@ -1138,7 +1138,7 @@ async function syInit(){
     M.auth.onAuthStateChanged(FBAUTH,syUser,e=>{SY.err=syErr(e);render();});
     try{await M.auth.getRedirectResult(FBAUTH);}catch(e){SY.err=syErr(e);}
     if(SY.state==='loading')SY.state='out';
-  }catch(e){SY.state='unavailable';SY.err='Не удалось загрузить Firebase. Проверьте интернет и повторите.';}
+  }catch(e){SY.state='unavailable';SY.err='Не удалось загрузить Firebase ('+String((e&&(e.code||e.message))||e).slice(0,100)+'). Проверьте интернет и повторите.';}
   render();
 }
 function syUser(u){
@@ -1248,7 +1248,7 @@ window.addEventListener('online',syncSoon);
 SH.sync=()=>{
   const st=SY.state;let h=shHead('Облако и синхронизация')+'<div class="pg sbody">';
   if(st==='noconfig'){
-    return h+'<div class="hint">Синхронизация между устройствами не подключена. Она работает в версии приложения на сайте (GitHub Pages) после настройки Firebase — шаги описаны в файле README.</div></div>';
+    return h+'<div class="hint">Синхронизация между устройствами не подключена. Она работает в версии приложения на сайте (GitHub Pages) после настройки Firebase — шаги описаны в файле README.</div>'+(window.claude?'':'<div class="hint">Диагностика: '+(FBCFG?'в firebase-config.js остались заглушки PASTE_…':'файл firebase-config.js не загрузился (откройте сайт с обновлением кэша: Ctrl/Cmd+Shift+R)')+'.</div>')+'</div>';
   }
   if(st==='in'&&SY.user){
     const stat=SY.busy?'<span class="spin" style="display:inline-grid;vertical-align:-3px;margin-right:6px">'+ico('repeat',16)+'</span>Синхронизация…':SY.err?'':(SM.dirty?'Есть изменения, отправляются…':'Всё синхронизировано'+(SY.last?' · '+esc(fmtTs(SY.last)):''));
