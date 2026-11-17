@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script>try{var t=localStorage.getItem("mywallet.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><script src="firebase-config.js?v=4"></script></head><body>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script>try{var t=localStorage.getItem("mywallet.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><script>if("serviceWorker"in navigator&&/^https:|^http:\/\/localhost/.test(location.href))addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})</script><script src="firebase-config.js?v=4"></script></head><body>
 <title>Мой кошелёк</title>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
@@ -834,6 +834,7 @@ SH.menu=()=>shHead('Меню')+'<div class="pg sbody"><div class="list">'
   +mrow('repeat','Постоянные операции','m-recs',D.rec.length?'<span class="mut" style="font-weight:700">'+D.rec.length+'</span>':'')
   +mrow('coin','Валюта и курс','m-cur','<span class="mut" style="font-weight:700">'+esc(curSym()[0]+(D.conv?' + '+CURS[D.conv][0]:''))+'</span>')
   +mrow('cloud','Облако и синхронизация','m-sync',SY.state==='in'?'<span class="mut" style="font-weight:700">'+(SY.busy?'…':SY.err?'Ошибка':'Вкл')+'</span>':(fbReady?'<span style="font-weight:800;color:var(--accent)">Войти</span>':''))
+  +(canInstall()?mrow('plus','Установить приложение','m-install'):'')
   +mrow('save','Сохранить копию в файл','m-backup')
   +mrow('arrowup','Восстановить из копии','m-restore')
   +mrow('trash','Удалить все данные','m-wipe','<span></span>','danger')
@@ -1257,6 +1258,14 @@ async function syncNow(){
 const syncSoon=()=>{if(SY.state==='in')syncNow();};
 window.addEventListener('online',syncSoon);
 
+/* ---- install as an app (PWA) ---- */
+let INSTALL=null;
+const isStandalone=()=>{try{return !!(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;}catch(e){return false;}};
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent||'')||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const canInstall=()=>!isStandalone()&&!window.claude&&(!!INSTALL||isIOS());
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();INSTALL=e;render();});
+window.addEventListener('appinstalled',()=>{INSTALL=null;render();toast('Приложение установлено');});
+SH.install=()=>shHead('Установить приложение')+'<div class="pg sbody"><div class="hint">'+(isIOS()?'Откройте сайт в Safari, нажмите «Поделиться» (квадрат со стрелкой) и выберите «На экран «Домой». Приложение появится на главном экране и будет открываться без адресной строки.':'Откройте меню браузера и выберите «Установить приложение» (или «Добавить на главный экран»). Приложение появится среди остальных и будет открываться без адресной строки.')+'</div></div>';
 /* ---- sign-in gate: with Firebase configured the app is unusable until signed in ----
    A user who signed in before keeps access while the SDK is still loading or the network is down. */
 const gateOn=()=>fbReady&&SY.state!=='in'&&!(SM.uid&&(SY.state==='loading'||SY.state==='idle'||SY.state==='unavailable'));
@@ -1363,6 +1372,7 @@ const ACT={
     FX={ts:Date.now(),date:todayISO(),src:MANUAL,r:Object.assign({},FX&&FX.r,{[D.conv]:r})};fxSave();FXST.err='';
     s.data.edit=false;render();toast('Курс сохранён');
   },
+  'm-install'(el){const s=sheetOf(el);if(INSTALL){const p=INSTALL;INSTALL=null;closeSheetObj(s,true);try{p.prompt();}catch(e){}return;}closeSheetObj(s,true);openSheet('install',{});},
   'm-sync'(el){const s=sheetOf(el);closeSheetObj(s,true);openSheet('sync',{});if(fbReady)syInit();},
   'sy-login'(){syLogin();},
   'sy-now'(){syncNow();},
