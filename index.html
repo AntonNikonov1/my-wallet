@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script>try{var t=localStorage.getItem("mywallet.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><script src="firebase-config.js?v=3"></script></head><body>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#ffffff"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Кошелёк"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><script>try{var t=localStorage.getItem("mywallet.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui}img{max-width:100%}[hidden]{display:none!important}</style><script src="firebase-config.js?v=4"></script></head><body>
 <title>Мой кошелёк</title>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
@@ -307,6 +307,13 @@ textarea.inp{height:150px;padding:14px 16px;resize:none;font-weight:500;font-siz
 .cgrid .cust input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
 .cgrid button.on::after{content:"";width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
 .stk{position:sticky;bottom:-22px;z-index:2;background:var(--bg);padding:10px 0 34px;margin-bottom:-22px;box-shadow:0 -12px 14px -4px var(--bg)}
+.gate{position:absolute;inset:0;z-index:90;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px max(24px,env(safe-area-inset-left,0px)) 24px max(24px,env(safe-area-inset-right,0px))}
+.gate[hidden]{display:none}
+.gbox{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.gbox h1{margin:6px 0 0;font-size:28px;font-weight:800;letter-spacing:-.03em}
+.gbox p{margin:0;color:var(--mute);font-size:15px;line-height:1.45}
+.gbox .btn{width:100%}
+.gbox .rerr{text-align:left}
 .ratec .btn.ghost{background:var(--bg)}
 /* currency sheet */
 .ratec{display:flex;flex-direction:column;gap:6px;background:var(--surface);border-radius:20px;padding:16px}
@@ -358,6 +365,7 @@ textarea.inp{height:150px;padding:14px 16px;resize:none;font-weight:500;font-siz
   <div id="pages"></div>
   <div id="layers"></div>
   <div id="toast" class="toast" role="status" hidden></div>
+  <div id="gate" class="gate" hidden></div>
 </div></div>
 <script>
 (function(){
@@ -718,7 +726,6 @@ function viewMain(){
   const inc=sum(list,'income'),exp=sum(list,'expense');
   let h='<div class="pg col" style="gap:18px"><header class="hd"><div class="mnav"><button class="ib sm" data-a="mon" data-d="-1" aria-label="Предыдущий месяц">'+ico('back',18)+'</button><b class="mlab">'+r.label+'</b><button class="ib sm" data-a="mon" data-d="1" aria-label="Следующий месяц"'+(UI.off>=0?' disabled style="opacity:.3"':'')+'>'+ico('chev',18)+'</button></div><div class="hr"><button class="ib" data-a="theme" aria-label="'+(themeNow()==='dark'?'Светлая тема':'Тёмная тема')+'">'+ico(themeNow()==='dark'?'sun':'moon',20)+'</button><button class="ib" data-a="menu" aria-label="Меню">'+ico('dots',20)+'</button></div></header>';
   if(!STORE_OK)h+='<div class="card" style="background:var(--warn-bg);color:var(--warn);font-weight:700">Браузер не даёт сохранять данные: после закрытия страницы они пропадут. Сохраняйте копию через меню ⋯</div>';
-  if(fbReady&&SY.state==='out'&&!SYHIDE)h+='<div class="card soft" style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;gap:12px;align-items:center">'+softTile('cloud',40)+'<div style="min-width:0"><b style="font-size:15px">Войдите, чтобы данные хранились в облаке</b><div class="hint" style="margin:2px 0 0">Сейчас они только в этом браузере. С входом через Google их видно на всех устройствах.</div></div></div><div class="acts" style="grid-template-columns:1fr auto"><button class="btn sm" data-a="sy-login">'+ico('user',16)+'Войти через Google</button><button class="btn ghost sm" data-a="sy-hide">Позже</button></div></div>';
   h+='<div class="balblk"><span class="lbl">Баланс</span>'+'<div class="balrow">'+bigMoney(balance())+secLine(balance())+'<button class="cvchip" data-a="cv-open" aria-label="Валюта пересчёта">'+(D.conv||'Валюта')+ico('down',14)+'</button></div></div>';
   h+='<div class="duo"><button class="card dark fc" data-a="filt" data-v="income"><span class="fi">'+ico('arrowdown',18)+'</span><span class="lbl w">Доходы</span><span class="fvr"><b class="fv">'+money(inc,{dec:0})+'</b>'+secLine(inc,{abs:true})+'</span></button><button class="card acc fc" data-a="filt" data-v="expense"><span class="fi">'+ico('arrowup',18)+'</span><span class="lbl w">Расходы</span><span class="fvr"><b class="fv">'+money(exp,{dec:0})+'</b>'+secLine(exp,{abs:true})+'</span></button></div>';
   h+=limitWidget(exp);
@@ -788,7 +795,7 @@ function paintPage(){
   const st=el.scrollTop;$('#pbody',el).innerHTML=UI.page==='break'?pageBreak():pageCats();el.scrollTop=st;
   qbarSync(el);
 }
-function render(){paintMain();paintPage();paintSheets();}
+function render(){paintMain();paintPage();paintSheets();gateSync();}
 function commit(){rebuild();save();render();}
 function toast(msg,o){o=o||{};const el=$('#toast');el.innerHTML='<span>'+esc(msg)+'</span>'+(o.undo?'<button data-a="undo">Отменить</button>':'');el.hidden=false;UNDO=o.undo||null;clearTimeout(toastT);toastT=setTimeout(()=>{el.hidden=true;UNDO=null;},o.undo?5500:2200);}
 function withUndo(msg,fn){const snap=JSON.stringify(D);fn();commit();toast(msg,{undo:()=>{D=norm(JSON.parse(snap));commit();toast('Возвращено');}});}
@@ -1101,7 +1108,6 @@ const fx4=n=>n.toFixed(4).replace('.',',');
 const SYKEY='mywallet.sync',SYBASE='mywallet.syncbase',FB_VER='10.12.5';
 const FBCFG=window.FIREBASE_CONFIG;
 const fbReady=!!(FBCFG&&typeof FBCFG==='object'&&FBCFG.apiKey&&FBCFG.projectId&&!/^(PASTE|YOUR|XXX)/i.test(String(FBCFG.apiKey)));
-let SYHIDE=false;try{SYHIDE=localStorage.getItem('mywallet.syhide')==='1';}catch(e){}
 let SM=readKey(SYKEY);if(!SM||typeof SM!=='object')SM={};
 const SY={state:fbReady?'idle':'noconfig',user:null,busy:false,err:'',last:0};
 let FBM=null,FBP=null,FBAUTH=null,FBDB=null,FBUNSUB=null,syT=null,syQ=false;
@@ -1163,9 +1169,12 @@ async function syLogin(){
   }
 }
 async function syLogout(){
+  /* the app is unusable without signing in, so the device is wiped on exit (the cloud copy stays); unsent changes go first */
+  if(SM.dirty&&SY.state==='in'){await syncNow();if(SM.dirty){toast('Не удалось отправить изменения в облако. Проверьте интернет и повторите.');return false;}}
   try{if(FBM)await FBM.auth.signOut(FBAUTH);}catch(e){}
   SM={};smSave();try{localStorage.removeItem(SYBASE);}catch(e){}
-  SY.user=null;SY.state='out';SY.err='';SY.last=0;render();
+  SY.user=null;SY.state='out';SY.err='';SY.last=0;
+  D=emptyData();UI.page=null;UI.f='all';UI.cnode=null;UI.off=0;UI.sheets.slice().forEach(x=>closeSheetObj(x,true));rebuild();flush();render();return true;
 }
 const syCatSig=cs=>{const m=new Map(cs.map(c=>[c.id,c]));return cs.map(c=>{const p=c.parentId&&m.get(c.parentId);return c.type+'|'+(p?p.name:'')+'|'+c.name+'|'+c.icon+'|'+c.color;}).sort().join('\n');};
 const syPristine=d=>!d.tx.length&&!d.rec.length&&!d.limit&&syCatSig(d.cats)===syCatSig(buildCats());
@@ -1247,6 +1256,20 @@ async function syncNow(){
 }
 const syncSoon=()=>{if(SY.state==='in')syncNow();};
 window.addEventListener('online',syncSoon);
+
+/* ---- sign-in gate: with Firebase configured the app is unusable until signed in ----
+   A user who signed in before keeps access while the SDK is still loading or the network is down. */
+const gateOn=()=>fbReady&&SY.state!=='in'&&!(SM.uid&&(SY.state==='loading'||SY.state==='idle'||SY.state==='unavailable'));
+function gateSync(){
+  const g=$('#gate');if(!g)return;const on=gateOn();
+  g.hidden=!on;['#main','#fab','#pages','#layers'].forEach(q=>{const e=$(q);if(e){if(on)e.setAttribute('inert','');else e.removeAttribute('inert');}});
+  if(!on){g.__k='';return;}
+  const k=SY.state+'|'+SY.err;if(g.__k===k)return;g.__k=k;
+  const wait=SY.state==='idle'||SY.state==='loading';
+  g.innerHTML='<div class="gbox">'+softTile('wallet',72)+'<h1>Мой кошелёк</h1><p>Чтобы пользоваться приложением, войдите через Google. Данные хранятся в вашем аккаунте и одинаковы на всех устройствах.</p>'
+    +(wait?'<p><span class="spin" style="display:inline-grid;vertical-align:-3px;margin-right:6px">'+ico('repeat',16)+'</span>Загрузка…</p>'
+      :(SY.err?'<div class="rerr">'+esc(SY.err)+'</div>':'')+(SY.state==='unavailable'?'<button class="btn" data-a="sy-retry">Повторить</button>':'<button class="btn" data-a="sy-login">'+ico('user',18)+'Войти через Google</button>'))+'</div>';
+}
 SH.sync=()=>{
   const st=SY.state;let h=shHead('Облако и синхронизация')+'<div class="pg sbody">';
   if(st==='noconfig'){
@@ -1342,9 +1365,8 @@ const ACT={
   },
   'm-sync'(el){const s=sheetOf(el);closeSheetObj(s,true);openSheet('sync',{});if(fbReady)syInit();},
   'sy-login'(){syLogin();},
-  'sy-hide'(){SYHIDE=true;try{localStorage.setItem('mywallet.syhide','1');}catch(e){}render();},
   'sy-now'(){syncNow();},
-  'sy-out'(el){const s=sheetOf(el);closeSheetObj(s,true);confirmBox({title:'Выйти из облака?',text:'Данные останутся на этом устройстве и в облаке, но перестанут синхронизироваться. Войти снова можно в любой момент.',ok:'Выйти',cb:()=>{syLogout();toast('Вы вышли из облака');}});},
+  'sy-out'(el){const s=sheetOf(el);closeSheetObj(s,true);confirmBox({title:'Выйти из аккаунта?',text:'Данные сохранятся в облаке, а с этого устройства будут удалены. Чтобы пользоваться приложением, нужно будет войти снова.',ok:'Выйти',cb:()=>{syLogout();}});},
   'sy-retry'(){FBP=null;SY.state='idle';SY.err='';syInit();},
   'm-backup'(){saveFile('moi-koshelek-'+todayISO()+'.json',JSON.stringify(D));},
   'm-restore'(el){const s=sheetOf(el);closeSheetObj(s,true);openSheet('restore',{text:'',err:''});},
